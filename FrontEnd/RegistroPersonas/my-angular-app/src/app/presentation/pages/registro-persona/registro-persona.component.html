@@ -1,0 +1,621 @@
+<div class="registro-container">
+  <!-- Breadcrumb -->
+  <app-breadcrumb [items]="breadcrumbItems"></app-breadcrumb>
+  
+  <div class="registro-header">
+    <h1><i class="pi pi-user-plus"></i> Registro de Persona en Albergue</h1>
+    <p>Complete la información de la persona que ingresa al albergue</p>
+  </div>
+
+  <form [formGroup]="registroForm" (ngSubmit)="onSubmit()" class="registro-form">
+    
+    <!-- Datos Personales -->
+    <p-card>
+      <ng-template pTemplate="header">
+        <div class="card-header">
+          <h3><i class="pi pi-user"></i> Datos Personales</h3>
+        </div>
+      </ng-template>
+
+      <div formGroupName="datosPersonales" class="formgrid grid">
+        <div class="field col-12 md:col-6">
+          <label for="nombre" class="block text-900 font-medium mb-2">
+            Nombre(s) <span class="text-red-500">*</span>
+          </label>
+          <input 
+            pInputText 
+            id="nombre" 
+            formControlName="nombre"
+            placeholder="Ingrese el nombre"
+            class="w-full"
+            [class.ng-invalid]="hasFieldError('datosPersonales.nombre')"
+            [class.ng-dirty]="hasFieldError('datosPersonales.nombre')" />
+          <small 
+            *ngIf="hasFieldError('datosPersonales.nombre')" 
+            class="p-error block mt-1">
+            {{ getFieldError('datosPersonales.nombre') }}
+          </small>
+        </div>
+
+        <div class="field col-12 md:col-6">
+          <label for="apellidoPaterno" class="block text-900 font-medium mb-2">
+            Apellido Paterno <span class="text-red-500">*</span>
+          </label>
+          <input 
+            pInputText 
+            id="apellidoPaterno" 
+            formControlName="apellidoPaterno"
+            placeholder="Ingrese el apellido paterno"
+            class="w-full"
+            [class.ng-invalid]="hasFieldError('datosPersonales.apellidoPaterno')"
+            [class.ng-dirty]="hasFieldError('datosPersonales.apellidoPaterno')" />
+          <small 
+            *ngIf="hasFieldError('datosPersonales.apellidoPaterno')" 
+            class="p-error block mt-1">
+            {{ getFieldError('datosPersonales.apellidoPaterno') }}
+          </small>
+        </div>
+
+        <div class="field col-12 md:col-6">
+          <label for="apellidoMaterno" class="block text-900 font-medium mb-2">
+            Apellido Materno
+          </label>
+          <input 
+            pInputText 
+            id="apellidoMaterno" 
+            formControlName="apellidoMaterno"
+            placeholder="Ingrese el apellido materno"
+            class="w-full" />
+        </div>
+
+        <div class="field col-12 md:col-3">
+          <label for="edad" class="block text-900 font-medium mb-2">
+            Edad <span class="text-red-500">*</span>
+          </label>
+          <p-inputNumber
+            id="edad"
+            formControlName="edad"
+            placeholder="Edad"
+            styleClass="w-full"
+            [min]="0"
+            [max]="120"
+            [showButtons]="true"
+            [class.ng-invalid]="hasFieldError('datosPersonales.edad')"
+            [class.ng-dirty]="hasFieldError('datosPersonales.edad')">
+          </p-inputNumber>
+          <small 
+            *ngIf="hasFieldError('datosPersonales.edad')" 
+            class="p-error block mt-1">
+            {{ getFieldError('datosPersonales.edad') }}
+          </small>
+        </div>
+
+        <div class="field col-12 md:col-3">
+          <label for="sexo" class="block text-900 font-medium mb-2">
+            Sexo <span class="text-red-500">*</span>
+          </label>
+          <p-dropdown
+            id="sexo"
+            formControlName="sexo"
+            [options]="sexoOptions"
+            placeholder="Seleccionar"
+            styleClass="w-full"
+            [class.ng-invalid]="hasFieldError('datosPersonales.sexo')"
+            [class.ng-dirty]="hasFieldError('datosPersonales.sexo')">
+          </p-dropdown>
+          <small 
+            *ngIf="hasFieldError('datosPersonales.sexo')" 
+            class="p-error block mt-1">
+            {{ getFieldError('datosPersonales.sexo') }}
+          </small>
+        </div>
+      </div>
+    </p-card>
+
+    <p-divider></p-divider>
+
+    <!-- Ubicación -->
+    <p-card>
+      <ng-template pTemplate="header">
+        <div class="card-header">
+          <h3><i class="pi pi-map-marker"></i> Ubicación de Origen</h3>
+        </div>
+      </ng-template>
+
+      <div formGroupName="ubicacion" class="formgrid grid">
+        <div class="field col-12 md:col-6">
+          <label for="municipio" class="block text-900 font-medium mb-2">
+            Municipio <span class="text-red-500">*</span>
+          </label>
+          <p-dropdown
+            id="municipio"
+            formControlName="municipioId"
+            [options]="municipioOptions"
+            placeholder="Seleccione el municipio"
+            styleClass="w-full"
+            [filter]="true"
+            filterBy="label"
+            [class.ng-invalid]="hasFieldError('ubicacion.municipioId')"
+            [class.ng-dirty]="hasFieldError('ubicacion.municipioId')">
+          </p-dropdown>
+          <small 
+            *ngIf="hasFieldError('ubicacion.municipioId')" 
+            class="p-error block mt-1">
+            {{ getFieldError('ubicacion.municipioId') }}
+          </small>
+        </div>
+
+        <div class="field col-12 md:col-6">
+          <label for="asentamiento" class="block text-900 font-medium mb-2">
+            Colonia/Asentamiento <span class="text-red-500">*</span>
+          </label>
+          <p-dropdown
+            id="asentamiento"
+            formControlName="coloniaNombre"
+            [options]="asentamientoOptions"
+            placeholder="Seleccione la colonia"
+            styleClass="w-full"
+            [filter]="true"
+            filterBy="label"
+            [disabled]="!asentamientoOptions.length"
+            [class.ng-invalid]="hasFieldError('ubicacion.coloniaNombre')"
+            [class.ng-dirty]="hasFieldError('ubicacion.coloniaNombre')">
+          </p-dropdown>
+          <small 
+            *ngIf="hasFieldError('ubicacion.coloniaNombre')" 
+            class="p-error block mt-1">
+            {{ getFieldError('ubicacion.coloniaNombre') }}
+          </small>
+          <small 
+            *ngIf="!asentamientoOptions.length && registroForm.get('ubicacion.municipioId')?.value" 
+            class="block mt-1 text-600">
+            Seleccione primero un municipio
+          </small>
+        </div>
+      </div>
+    </p-card>
+
+    <p-divider></p-divider>
+
+    <!-- Fechas de Ingreso -->
+    <p-card>
+      <ng-template pTemplate="header">
+        <div class="card-header">
+          <h3><i class="pi pi-calendar"></i> Fechas de Ingreso</h3>
+        </div>
+      </ng-template>
+
+      <div formGroupName="fechas" class="formgrid grid">
+        <div class="field col-12 md:col-6">
+          <label for="fechaLlegada" class="block text-900 font-medium mb-2">
+            Fecha y Hora de Llegada <span class="text-red-500">*</span>
+          </label>
+          <p-calendar
+            id="fechaLlegada"
+            formControlName="fechaHoraLlegada"
+            styleClass="w-full"
+            [showTime]="true"
+            [showSeconds]="false"
+            placeholder="dd/mm/aaaa hh:mm"
+            dateFormat="dd/mm/yy"
+            [class.ng-invalid]="hasFieldError('fechas.fechaHoraLlegada')"
+            [class.ng-dirty]="hasFieldError('fechas.fechaHoraLlegada')">
+          </p-calendar>
+          <small 
+            *ngIf="hasFieldError('fechas.fechaHoraLlegada')" 
+            class="p-error block mt-1">
+            {{ getFieldError('fechas.fechaHoraLlegada') }}
+          </small>
+        </div>
+
+        <div class="field col-12 md:col-6">
+          <label for="fechaSalida" class="block text-900 font-medium mb-2">
+            Fecha y Hora de Salida (opcional)
+          </label>
+          <p-calendar
+            id="fechaSalida"
+            formControlName="fechaHoraSalida"
+            styleClass="w-full"
+            [showTime]="true"
+            [showSeconds]="false"
+            placeholder="dd/mm/aaaa hh:mm"
+            dateFormat="dd/mm/yy">
+          </p-calendar>
+        </div>
+      </div>
+    </p-card>
+
+    <p-divider></p-divider>
+
+    <!-- Información de Albergue -->
+    <p-card>
+      <ng-template pTemplate="header">
+        <div class="card-header">
+          <h3><i class="pi pi-home"></i> Información de Albergue</h3>
+        </div>
+      </ng-template>
+
+      <div formGroupName="informacionIngreso" class="formgrid grid">
+        <div class="field col-12 md:col-6">
+          <label for="municipioAlbergue" class="block text-900 font-medium mb-2">
+            Municipio del Albergue <span class="text-red-500">*</span>
+          </label>
+          <p-dropdown
+            id="municipioAlbergue"
+            formControlName="municipioAlbergueId"
+            [options]="municipioAlbergueOptions"
+            placeholder="Seleccione el municipio"
+            optionLabel="label"
+            optionValue="value"
+            styleClass="w-full"
+            [class.ng-invalid]="hasFieldError('informacionIngreso.municipioAlbergueId')"
+            [class.ng-dirty]="hasFieldError('informacionIngreso.municipioAlbergueId')">
+          </p-dropdown>
+          <small 
+            *ngIf="hasFieldError('informacionIngreso.municipioAlbergueId')" 
+            class="p-error block mt-1">
+            {{ getFieldError('informacionIngreso.municipioAlbergueId') }}
+          </small>
+        </div>
+
+        <div class="field col-12 md:col-6">
+          <label for="albergue" class="block text-900 font-medium mb-2">
+            Albergue Asignado <span class="text-red-500">*</span>
+          </label>
+          <p-dropdown
+            id="albergue"
+            formControlName="albergueId"
+            [options]="albergueOptions"
+            placeholder="Seleccione el albergue"
+            optionLabel="label"
+            optionValue="value"
+            styleClass="w-full"
+            [disabled]="!registroForm.get('informacionIngreso.municipioAlbergueId')?.value"
+            [class.ng-invalid]="hasFieldError('informacionIngreso.albergueId')"
+            [class.ng-dirty]="hasFieldError('informacionIngreso.albergueId')">
+          </p-dropdown>
+          <small 
+            *ngIf="hasFieldError('informacionIngreso.albergueId')" 
+            class="p-error block mt-1">
+            {{ getFieldError('informacionIngreso.albergueId') }}
+          </small>
+          <small class="block mt-1 text-600">
+            <i class="pi pi-info-circle"></i>
+            Primero seleccione el municipio para ver los albergues disponibles
+          </small>
+        </div>
+      </div>
+    </p-card>
+
+    <p-divider></p-divider>
+
+    <!-- Información Familiar -->
+    <p-card>
+      <ng-template pTemplate="header">
+        <div class="card-header">
+          <h3><i class="pi pi-users"></i> Información Familiar</h3>
+        </div>
+      </ng-template>
+
+      <div class="formgrid grid">
+        <div class="field col-12">
+          <p-checkbox 
+            id="esGrupoFamiliar" 
+            formControlName="esGrupoFamiliar" 
+            binary="true"
+            label="¿Viene acompañado de familiares?">
+          </p-checkbox>
+        </div>
+
+        <div class="field col-12" *ngIf="registroForm.get('esGrupoFamiliar')?.value">
+          <p-checkbox 
+            id="esCabezaFamilia" 
+            formControlName="esCabezaFamilia" 
+            binary="true"
+            label="¿Es la cabeza de familia?">
+          </p-checkbox>
+        </div>
+      </div>
+
+      <!-- Lista de Familiares -->
+      <div *ngIf="registroForm.get('esGrupoFamiliar')?.value && familiares.length > 0">
+        <p-divider align="left">
+          <div class="inline-flex align-items-center">
+            <i class="pi pi-users mr-2"></i>
+            <b>Familiares Acompañantes</b>
+          </div>
+        </p-divider>
+
+        <p-accordion>
+          <p-accordionTab *ngFor="let familiar of familiares.controls; let i = index" 
+                         [header]="'Familiar ' + (i + 1)">
+            <div [formGroup]="$any(familiar)" class="formgrid grid">
+              <div class="field col-12 md:col-4">
+                <label [for]="'nombreFamiliar' + i" class="block text-900 font-medium mb-2">
+                  Nombre(s) <span class="text-red-500">*</span>
+                </label>
+                <input 
+                  pInputText 
+                  [id]="'nombreFamiliar' + i" 
+                  formControlName="nombre"
+                  placeholder="Nombre del familiar"
+                  class="w-full" />
+              </div>
+
+              <div class="field col-12 md:col-4">
+                <label [for]="'apellidoPaternoFam' + i" class="block text-900 font-medium mb-2">
+                  Apellido Paterno <span class="text-red-500">*</span>
+                </label>
+                <input 
+                  pInputText 
+                  [id]="'apellidoPaternoFam' + i" 
+                  formControlName="apellidoPaterno"
+                  placeholder="Apellido paterno"
+                  class="w-full" />
+              </div>
+
+              <div class="field col-12 md:col-4">
+                <label [for]="'apellidoMaternoFam' + i" class="block text-900 font-medium mb-2">
+                  Apellido Materno
+                </label>
+                <input 
+                  pInputText 
+                  [id]="'apellidoMaternoFam' + i" 
+                  formControlName="apellidoMaterno"
+                  placeholder="Apellido materno"
+                  class="w-full" />
+              </div>
+
+              <div class="field col-12 md:col-3">
+                <label [for]="'edadFamiliar' + i" class="block text-900 font-medium mb-2">
+                  Edad <span class="text-red-500">*</span>
+                </label>
+                <p-inputNumber
+                  [id]="'edadFamiliar' + i"
+                  formControlName="edad"
+                  placeholder="Edad"
+                  styleClass="w-full"
+                  [min]="0"
+                  [max]="120"
+                  [showButtons]="true">
+                </p-inputNumber>
+              </div>
+
+              <div class="field col-12 md:col-3">
+                <label [for]="'sexoFamiliar' + i" class="block text-900 font-medium mb-2">
+                  Sexo <span class="text-red-500">*</span>
+                </label>
+                <p-dropdown
+                  [id]="'sexoFamiliar' + i"
+                  formControlName="sexo"
+                  [options]="sexoOptions"
+                  placeholder="Seleccionar"
+                  styleClass="w-full">
+                </p-dropdown>
+              </div>
+
+              <div class="field col-12 md:col-4">
+                <label [for]="'parentescoFamiliar' + i" class="block text-900 font-medium mb-2">
+                  Parentesco <span class="text-red-500">*</span>
+                </label>
+                <p-dropdown
+                  [id]="'parentescoFamiliar' + i"
+                  formControlName="parentesco"
+                  [options]="parentescoOptions"
+                  placeholder="Seleccionar"
+                  styleClass="w-full">
+                </p-dropdown>
+              </div>
+
+              <div class="field col-12 md:col-2">
+                <label class="block text-900 font-medium mb-2">&nbsp;</label>
+                <p-checkbox 
+                  [id]="'contactoEmergencia' + i" 
+                  formControlName="contactoEmergencia" 
+                  binary="true"
+                  label="Contacto de emergencia">
+                </p-checkbox>
+              </div>
+
+              <div class="field col-12">
+                <p-button 
+                  label="Remover Familiar" 
+                  icon="pi pi-trash" 
+                  styleClass="p-button-danger p-button-outlined p-button-sm"
+                  (click)="removerFamiliar(i)"
+                  type="button">
+                </p-button>
+              </div>
+            </div>
+          </p-accordionTab>
+        </p-accordion>
+
+        <div class="mt-3">
+          <p-button 
+            label="Agregar Otro Familiar" 
+            icon="pi pi-plus" 
+            styleClass="p-button-outlined"
+            (click)="agregarFamiliar()"
+            type="button">
+          </p-button>
+        </div>
+      </div>
+
+      <div *ngIf="registroForm.get('esGrupoFamiliar')?.value && familiares.length === 0" class="mt-3">
+        <p-button 
+          label="Agregar Primer Familiar" 
+          icon="pi pi-plus" 
+          styleClass="p-button-outlined"
+          (click)="agregarFamiliar()"
+          type="button">
+        </p-button>
+      </div>
+    </p-card>
+
+    <p-divider></p-divider>
+
+    <!-- Condiciones Médicas -->
+    <p-card>
+      <ng-template pTemplate="header">
+        <div class="card-header">
+          <h3><i class="pi pi-heart"></i> Condiciones Médicas</h3>
+        </div>
+      </ng-template>
+
+      <div class="formgrid grid">
+        <div class="field col-12">
+          <p-checkbox 
+            id="tieneCondicionesMedicas" 
+            formControlName="tieneCondicionesMedicas" 
+            binary="true"
+            label="¿Tiene alguna condición médica especial, discapacidad o necesidad de medicamentos?">
+          </p-checkbox>
+        </div>
+      </div>
+
+      <!-- Lista de Condiciones Médicas -->
+      <div *ngIf="registroForm.get('tieneCondicionesMedicas')?.value && condicionesMedicas.length > 0">
+        <p-divider align="left">
+          <div class="inline-flex align-items-center">
+            <i class="pi pi-heart mr-2"></i>
+            <b>Condiciones Médicas</b>
+          </div>
+        </p-divider>
+
+        <p-accordion>
+          <p-accordionTab *ngFor="let condicion of condicionesMedicas.controls; let i = index" 
+                         [header]="'Condición ' + (i + 1)">
+            <div [formGroup]="$any(condicion)" class="formgrid grid">
+              <div class="field col-12 md:col-6">
+                <label [for]="'tipoCondicion' + i" class="block text-900 font-medium mb-2">
+                  Tipo de Condición <span class="text-red-500">*</span>
+                </label>
+                <p-dropdown
+                  [id]="'tipoCondicion' + i"
+                  formControlName="tipo"
+                  [options]="tipoCondicionMedica"
+                  placeholder="Seleccione el tipo"
+                  styleClass="w-full">
+                </p-dropdown>
+              </div>
+
+              <div class="field col-12 md:col-6">
+                <label [for]="'descripcionCondicion' + i" class="block text-900 font-medium mb-2">
+                  Descripción <span class="text-red-500">*</span>
+                </label>
+                <textarea 
+                  pInputTextarea 
+                  [id]="'descripcionCondicion' + i" 
+                  formControlName="descripcion"
+                  placeholder="Describa la condición médica"
+                  class="w-full"
+                  rows="2">
+                </textarea>
+              </div>
+
+              <div class="field col-12 md:col-4">
+                <label [for]="'medicamentos' + i" class="block text-900 font-medium mb-2">
+                  Medicamentos
+                </label>
+                <textarea 
+                  pInputTextarea 
+                  [id]="'medicamentos' + i" 
+                  formControlName="medicamentos"
+                  placeholder="Lista de medicamentos"
+                  class="w-full"
+                  rows="2">
+                </textarea>
+              </div>
+
+              <div class="field col-12 md:col-4">
+                <label [for]="'alergias' + i" class="block text-900 font-medium mb-2">
+                  Alergias
+                </label>
+                <textarea 
+                  pInputTextarea 
+                  [id]="'alergias' + i" 
+                  formControlName="alergias"
+                  placeholder="Alergias conocidas"
+                  class="w-full"
+                  rows="2">
+                </textarea>
+              </div>
+
+              <div class="field col-12 md:col-4">
+                <label [for]="'requerimientos' + i" class="block text-900 font-medium mb-2">
+                  Requerimientos Especiales
+                </label>
+                <textarea 
+                  pInputTextarea 
+                  [id]="'requerimientos' + i" 
+                  formControlName="requerimientosEspeciales"
+                  placeholder="Cuidados especiales requeridos"
+                  class="w-full"
+                  rows="2">
+                </textarea>
+              </div>
+
+              <div class="field col-12">
+                <p-button 
+                  label="Remover Condición" 
+                  icon="pi pi-trash" 
+                  styleClass="p-button-danger p-button-outlined p-button-sm"
+                  (click)="removerCondicionMedica(i)"
+                  type="button">
+                </p-button>
+              </div>
+            </div>
+          </p-accordionTab>
+        </p-accordion>
+
+        <div class="mt-3">
+          <p-button 
+            label="Agregar Otra Condición" 
+            icon="pi pi-plus" 
+            styleClass="p-button-outlined"
+            (click)="agregarCondicionMedica()"
+            type="button">
+          </p-button>
+        </div>
+      </div>
+
+      <div *ngIf="registroForm.get('tieneCondicionesMedicas')?.value && condicionesMedicas.length === 0" class="mt-3">
+        <p-button 
+          label="Agregar Primera Condición" 
+          icon="pi pi-plus" 
+          styleClass="p-button-outlined"
+          (click)="agregarCondicionMedica()"
+          type="button">
+        </p-button>
+      </div>
+    </p-card>
+
+    <p-divider></p-divider>
+
+    <!-- Botones de Acción -->
+    <div class="form-actions">
+      <p-button 
+        label="Cancelar" 
+        icon="pi pi-times" 
+        styleClass="p-button-outlined p-button-secondary"
+        (click)="cancelar()"
+        type="button">
+      </p-button>
+      
+      <p-button 
+        label="Registrar Persona" 
+        icon="pi pi-check" 
+        styleClass="p-button-lg"
+        type="submit"
+        [loading]="isLoading"
+        [disabled]="registroForm.invalid">
+      </p-button>
+    </div>
+  </form>
+</div>
+
+<!-- Toast para notificaciones -->
+<p-toast></p-toast>
+
+<!-- Diálogo de confirmación -->
+<p-confirmDialog></p-confirmDialog>

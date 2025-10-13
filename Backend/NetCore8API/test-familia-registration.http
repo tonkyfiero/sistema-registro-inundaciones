@@ -1,0 +1,58 @@
+### Test family group registration
+POST http://localhost:5120/api/GruposFamiliares
+Content-Type: application/json
+
+{
+  "albergueId": 1,
+  "requiereAyudaEspecial": false,
+  "descripcionSituacion": "Familia de prueba registrada",
+  "tipoAyudaRequerida": "Ninguna",
+  "miembros": [
+    {
+      "numeroIdentificacion": "TEMP001",
+      "primerNombre": "María",
+      "segundoNombre": "",
+      "primerApellido": "González",
+      "segundoApellido": "López",
+      "fechaNacimiento": "1985-01-15T00:00:00",
+      "genero": "F",
+      "telefono": "9999999999",
+      "email": "",
+      "direccionAnterior": "Calle Principal 123",
+      "municipioOrigenId": 1,
+      "asentamientoOrigen": "Centro",
+      "tieneCondicionesMedicas": false,
+      "condicionesMedicas": [],
+      "observaciones": "Cabeza de familia - Registrada como prueba"
+    },
+    {
+      "numeroIdentificacion": "TEMP002",
+      "primerNombre": "Juan",
+      "segundoNombre": "",
+      "primerApellido": "González",
+      "segundoApellido": "López",
+      "fechaNacimiento": "2010-01-15T00:00:00",
+      "genero": "M",
+      "telefono": "",
+      "email": "",
+      "direccionAnterior": "Calle Principal 123",
+      "municipioOrigenId": 1,
+      "asentamientoOrigen": "Centro",
+      "tieneCondicionesMedicas": false,
+      "condicionesMedicas": [],
+      "observaciones": "Familiar - Parentesco: Hijo - Registrado como prueba"
+    }
+  ]
+}
+
+### Get all family groups
+GET http://localhost:5120/api/GruposFamiliares
+
+### Get family groups by albergue
+GET http://localhost:5120/api/GruposFamiliares/albergue/1
+
+### Get all albergues to test
+GET http://localhost:5120/api/Albergues
+
+### Get all municipios to test
+GET http://localhost:5120/api/Municipios

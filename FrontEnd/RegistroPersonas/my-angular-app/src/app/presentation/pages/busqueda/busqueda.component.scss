@@ -1,0 +1,484 @@
+.busqueda-container {
+  padding: 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+
+  .page-header {
+    text-align: center;
+    margin-bottom: 2rem;
+
+    h1 {
+      color: var(--primary-color);
+      margin-bottom: 0.5rem;
+      font-size: 2.5rem;
+      font-weight: 600;
+    }
+
+    p {
+      color: var(--text-color-secondary);
+      font-size: 1.1rem;
+    }
+  }
+
+  .filtros-card {
+    margin-bottom: 2rem;
+
+    .filtros-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      align-items: end;
+
+      .filtro-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+
+        label {
+          font-weight: 600;
+          color: var(--text-color);
+          font-size: 0.9rem;
+        }
+
+        &.filtro-acciones {
+          justify-content: flex-end;
+        }
+      }
+    }
+  }
+
+  .resultados-card {
+    .resultados-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+
+      h3 {
+        margin: 0;
+        color: var(--text-color);
+        font-size: 1.3rem;
+      }
+    }
+  }
+
+  // Estilos de tabla
+  ::ng-deep {
+    .p-datatable {
+      .p-datatable-header {
+        background: var(--surface-100);
+        border: 1px solid var(--surface-300);
+        padding: 1rem;
+      }
+
+      .p-datatable-thead > tr > th {
+        background: var(--surface-200);
+        color: var(--text-color);
+        font-weight: 600;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--surface-300);
+
+        .p-sortable-column-icon {
+          color: var(--primary-color);
+        }
+      }
+
+      .p-datatable-tbody > tr {
+        &:hover {
+          background: var(--surface-100);
+        }
+
+        > td {
+          padding: 1rem;
+          border: 1px solid var(--surface-300);
+        }
+      }
+
+      .p-paginator {
+        background: var(--surface-50);
+        border: 1px solid var(--surface-300);
+        border-top: none;
+        padding: 0.75rem 1rem;
+
+        .p-paginator-pages {
+          .p-paginator-page {
+            &.p-highlight {
+              background: var(--primary-color);
+              color: var(--primary-color-text);
+            }
+          }
+        }
+      }
+    }
+
+    .p-card {
+      .p-card-header {
+        background: var(--surface-50);
+        border-bottom: 1px solid var(--surface-300);
+        padding: 1.5rem;
+      }
+
+      .p-card-content {
+        padding: 1.5rem;
+      }
+    }
+
+    .p-dropdown,
+    .p-calendar {
+      width: 100%;
+
+      .p-dropdown-trigger,
+      .p-datepicker-trigger {
+        background: var(--surface-200);
+        color: var(--text-color);
+      }
+    }
+
+    .p-inputtext {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid var(--surface-300);
+      border-radius: 6px;
+      
+      &:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(var(--primary-color-rgb), 0.2);
+      }
+    }
+
+    .p-button {
+      padding: 0.75rem 1.5rem;
+      
+      &.p-button-secondary {
+        background: var(--surface-300);
+        border-color: var(--surface-300);
+        color: var(--text-color);
+        
+        &:hover {
+          background: var(--surface-400);
+          border-color: var(--surface-400);
+        }
+      }
+    }
+
+    .p-tag {
+      &.p-tag-secondary {
+        background: var(--surface-300);
+        color: var(--text-color);
+      }
+
+      &.p-tag-info {
+        background: var(--blue-100);
+        color: var(--blue-700);
+      }
+
+      &.p-tag-warning {
+        background: var(--orange-100);
+        color: var(--orange-700);
+      }
+
+      &.p-tag-danger {
+        background: var(--red-100);
+        color: var(--red-700);
+      }
+    }
+  }
+
+  // Estilos específicos de la tabla
+  .nombre-completo {
+    .apellido-materno {
+      font-size: 0.85rem;
+      color: var(--text-color-secondary);
+      margin-top: 0.25rem;
+    }
+  }
+
+  .ubicacion {
+    strong {
+      color: var(--primary-color);
+    }
+  }
+
+  .estado-badges {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    
+    .p-tag {
+      align-self: flex-start;
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+    }
+  }
+
+  .empty-state {
+    padding: 2rem;
+    text-align: center;
+    color: var(--text-color-secondary);
+
+    p {
+      margin-top: 1rem;
+      
+      &.text-sm {
+        font-size: 0.875rem;
+      }
+    }
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .busqueda-container {
+    padding: 1rem;
+
+    .page-header {
+      h1 {
+        font-size: 2rem;
+      }
+    }
+
+    .filtros-card .filtros-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .resultados-header {
+      flex-direction: column;
+      align-items: flex-start !important;
+    }
+
+    ::ng-deep {
+      .p-datatable {
+        .p-datatable-tbody > tr > td {
+          padding: 0.5rem;
+          font-size: 0.875rem;
+        }
+      }
+    }
+
+    .estado-badges {
+      .p-tag {
+        font-size: 0.65rem;
+        padding: 0.2rem 0.4rem;
+      }
+    }
+
+    // Estilos específicos para los nuevos campos
+    .codigo-tag {
+      font-family: 'Courier New', monospace;
+      font-weight: bold;
+    }
+
+    .nombre-completo {
+      .apellido-materno {
+        font-size: 0.8rem;
+        color: var(--text-color-secondary);
+        margin-top: 0.2rem;
+      }
+    }
+
+    .edad-text {
+      font-weight: 600;
+      color: var(--text-color);
+    }
+
+    .albergue-id {
+      font-weight: 600;
+      color: var(--primary-color);
+    }
+
+    .nombre-albergue {
+      font-size: 0.875rem;
+      color: var(--text-color);
+    }
+
+    .sin-familia {
+      font-size: 0.8rem;
+      color: var(--text-color-secondary);
+      font-style: italic;
+    }
+
+    // Estilos para la información de familia
+    .familia-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      align-items: flex-start;
+
+      .familia-tag {
+        font-size: 0.75rem;
+        padding: 0.2rem 0.5rem;
+      }
+
+      .grupo-id {
+        font-size: 0.7rem;
+        color: var(--text-color-secondary);
+        font-style: italic;
+      }
+    }
+
+    .individual-tag {
+      font-size: 0.75rem;
+      padding: 0.2rem 0.5rem;
+    }
+
+    .detalles-button {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+    }
+  }
+
+  // Estilos para el modal de detalles
+  .detalles-container {
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+
+      .info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+
+        label {
+          font-weight: 600;
+          color: var(--text-color);
+          font-size: 0.875rem;
+        }
+
+        span {
+          color: var(--text-color-secondary);
+          padding: 0.5rem 0;
+        }
+
+        .codigo-value {
+          font-family: 'Courier New', monospace;
+          font-weight: bold;
+          color: var(--primary-color);
+        }
+      }
+    }
+
+    .familia-info-detalle {
+      .info-item {
+        margin-bottom: 1rem;
+      }
+
+      .miembros-familia {
+        margin-top: 1.5rem;
+
+        label {
+          font-weight: 600;
+          color: var(--text-color);
+          display: block;
+          margin-bottom: 1rem;
+        }
+
+        .lista-miembros {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+          gap: 1rem;
+
+          .miembro-card {
+            border: 1px solid var(--surface-border);
+            border-radius: 6px;
+
+            .miembro-info {
+              display: flex;
+              flex-direction: column;
+              gap: 0.5rem;
+
+              strong {
+                color: var(--text-color);
+              }
+
+              small {
+                color: var(--text-color-secondary);
+                font-family: 'Courier New', monospace;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    .sin-familia-info,
+    .sin-condiciones {
+      padding: 1rem;
+      background-color: var(--surface-50);
+      border-radius: 6px;
+      text-align: center;
+
+      p {
+        margin: 0;
+        color: var(--text-color-secondary);
+
+        i {
+          margin-right: 0.5rem;
+        }
+      }
+    }
+
+    .condiciones-medicas {
+      .condicion-item {
+        margin-bottom: 1rem;
+        padding: 1rem;
+        border: 1px solid var(--surface-border);
+        border-radius: 6px;
+
+        p {
+          margin: 0.5rem 0 0 0;
+          color: var(--text-color-secondary);
+        }
+      }
+    }
+
+    ::ng-deep .p-panel {
+      margin-bottom: 1rem;
+
+      .p-panel-header {
+        background-color: var(--primary-50);
+        border: 1px solid var(--primary-200);
+        font-weight: 600;
+      }
+
+      .p-panel-content {
+        padding: 1rem;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .busqueda-container {
+    padding: 0.75rem;
+
+    .page-header {
+      h1 {
+        font-size: 1.75rem;
+      }
+      
+      p {
+        font-size: 1rem;
+      }
+    }
+
+    ::ng-deep {
+      .p-card {
+        .p-card-header,
+        .p-card-content {
+          padding: 1rem;
+        }
+      }
+
+      .p-datatable {
+        .p-datatable-thead > tr > th,
+        .p-datatable-tbody > tr > td {
+          padding: 0.5rem 0.25rem;
+          font-size: 0.8rem;
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,138 @@
+<div class="login-container">
+  <div class="login-wrapper">
+    <div class="login-card">
+      <p-card>
+        <ng-template pTemplate="header">
+          <div class="login-header">
+            <div class="login-logo">
+              <i class="pi pi-shield" style="font-size: 3rem; color: var(--primary-color);"></i>
+            </div>
+            <h2>Acceso al Sistema</h2>
+            <p>Sistema de Registro de Personas en Albergues</p>
+          </div>
+        </ng-template>
+
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+          <!-- Campo Usuario -->
+          <div class="field">
+            <label for="username" class="block text-900 font-medium mb-2">
+              Usuario <span class="text-red-500">*</span>
+            </label>
+            <input 
+              pInputText 
+              id="username" 
+              formControlName="username"
+              placeholder="Ingrese su usuario"
+              class="w-full"
+              [class.ng-invalid]="hasFieldError('username')"
+              [class.ng-dirty]="hasFieldError('username')" />
+            <small 
+              *ngIf="hasFieldError('username')" 
+              class="p-error block mt-1">
+              {{ getFieldError('username') }}
+            </small>
+          </div>
+
+          <!-- Campo Contraseña -->
+          <div class="field">
+            <label for="password" class="block text-900 font-medium mb-2">
+              Contraseña <span class="text-red-500">*</span>
+            </label>
+            <p-password
+              id="password"
+              formControlName="password"
+              placeholder="Ingrese su contraseña"
+              styleClass="w-full"
+              inputStyleClass="w-full"
+              [class.ng-invalid]="hasFieldError('password')"
+              [class.ng-dirty]="hasFieldError('password')"
+              [feedback]="false"
+              [toggleMask]="true">
+            </p-password>
+            <small 
+              *ngIf="hasFieldError('password')" 
+              class="p-error block mt-1">
+              {{ getFieldError('password') }}
+            </small>
+          </div>
+
+          <!-- Campo Rol -->
+          <div class="field">
+            <label for="role" class="block text-900 font-medium mb-2">
+              Tipo de Usuario <span class="text-red-500">*</span>
+            </label>
+            <p-dropdown
+              id="role"
+              formControlName="role"
+              [options]="roles"
+              placeholder="Seleccione su rol"
+              styleClass="w-full"
+              [class.ng-invalid]="hasFieldError('role')"
+              [class.ng-dirty]="hasFieldError('role')">
+            </p-dropdown>
+            <small 
+              *ngIf="hasFieldError('role')" 
+              class="p-error block mt-1">
+              {{ getFieldError('role') }}
+            </small>
+          </div>
+
+          <!-- Recordarme -->
+          <div class="field-checkbox">
+            <p-checkbox 
+              id="rememberMe" 
+              formControlName="rememberMe" 
+              binary="true">
+            </p-checkbox>
+            <label for="rememberMe" class="ml-2">Recordarme</label>
+          </div>
+
+          <!-- Mensaje de Error -->
+          <div *ngIf="errorMessage" class="field">
+            <p-message 
+              severity="error" 
+              [text]="errorMessage"
+              styleClass="w-full">
+            </p-message>
+          </div>
+
+          <!-- Botón de Acceso -->
+          <div class="field">
+            <p-button 
+              label="Iniciar Sesión"
+              icon="pi pi-sign-in"
+              styleClass="w-full p-button-lg"
+              type="submit"
+              [loading]="isLoading"
+              [disabled]="loginForm.invalid">
+            </p-button>
+          </div>
+        </form>
+
+        <ng-template pTemplate="footer">
+          <div class="login-footer">
+            <div class="login-help">
+              <h4>Información de Acceso por Rol:</h4>
+              <ul class="role-info">
+                <li>
+                  <strong>Administrador:</strong> Acceso completo al sistema, gestión de usuarios y albergues.
+                </li>
+                <li>
+                  <strong>Responsable de Albergue:</strong> Registro de personas, gestión de su albergue.
+                </li>
+                <li>
+                  <strong>Visitante:</strong> Consulta de información pública y búsqueda de familiares.
+                </li>
+              </ul>
+            </div>
+            <div class="login-demo">
+              <p class="text-center text-600 mt-3">
+                <strong>Usuario de prueba:</strong> admin / admin
+              </p>
+            </div>
+          </div>
+        </ng-template>
+      </p-card>
+    </div>
+  </div>
+</div>

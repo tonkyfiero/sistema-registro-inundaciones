@@ -1,0 +1,18 @@
+{
+  "Albergues": [
+    { 
+      "Nombre": "Albergue Temporal Poza Rica", 
+      "Capacidad": 100, 
+      "Direccion": "Calle 20 de Noviembre No. 123, Col. Centro, Poza Rica, Veracruz", 
+      "Telefono": "782-123-4567", 
+      "Contacto": "Juan Pérez" 
+    },
+    { 
+      "Nombre": "Refugio San José", 
+      "Capacidad": 50, 
+      "Direccion": "Avenida Central No. 456, Col. Las Américas, Poza Rica, Veracruz", 
+      "Telefono": "782-987-6543", 
+      "Contacto": "María López" 
+    }
+  ]
+}

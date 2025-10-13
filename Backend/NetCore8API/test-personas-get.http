@@ -1,0 +1,7 @@
+### Test GET Personas endpoint
+GET http://localhost:5120/api/Personas
+Accept: application/json
+
+### Test GET Single Persona
+GET http://localhost:5120/api/Personas/11
+Accept: application/json

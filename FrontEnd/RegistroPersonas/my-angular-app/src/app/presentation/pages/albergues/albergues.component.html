@@ -1,0 +1,456 @@
+<div class="albergues-container">
+  <!-- Breadcrumb -->
+  <app-breadcrumb [items]="breadcrumbItems"></app-breadcrumb>
+  
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1><i class="pi pi-home"></i> Gestión de Albergues</h1>
+      <p>Administra los albergues disponibles para las personas afectadas</p>
+    </div>
+    <div class="header-actions">
+      <p-button 
+        label="Nuevo Albergue" 
+        icon="pi pi-plus" 
+        (click)="openNewDialog()">
+      </p-button>
+    </div>
+  </div>
+
+  <!-- Estadísticas -->
+  <div class="estadisticas-grid">
+    <p-card class="stat-card">
+      <div class="stat-content">
+        <div class="stat-icon bg-primary">
+          <i class="pi pi-home"></i>
+        </div>
+        <div class="stat-info">
+          <h3>{{ estadisticas.total }}</h3>
+          <p>Total Albergues</p>
+        </div>
+      </div>
+    </p-card>
+
+    <p-card class="stat-card">
+      <div class="stat-content">
+        <div class="stat-icon bg-success">
+          <i class="pi pi-check-circle"></i>
+        </div>
+        <div class="stat-info">
+          <h3>{{ estadisticas.activos }}</h3>
+          <p>Albergues Activos</p>
+        </div>
+      </div>
+    </p-card>
+
+    <p-card class="stat-card">
+      <div class="stat-content">
+        <div class="stat-icon bg-warning">
+          <i class="pi pi-exclamation-triangle"></i>
+        </div>
+        <div class="stat-info">
+          <h3>{{ estadisticas.llenos }}</h3>
+          <p>Albergues Llenos</p>
+        </div>
+      </div>
+    </p-card>
+
+    <p-card class="stat-card">
+      <div class="stat-content">
+        <div class="stat-icon bg-info">
+          <i class="pi pi-chart-bar"></i>
+        </div>
+        <div class="stat-info">
+          <h3>{{ estadisticas.ocupacion.toFixed(1) }}%</h3>
+          <p>Ocupación General</p>
+        </div>
+      </div>
+    </p-card>
+  </div>
+
+  <!-- Tabla de Albergues -->
+  <p-card>
+    <ng-template pTemplate="header">
+      <h3><i class="pi pi-list"></i> Lista de Albergues</h3>
+    </ng-template>
+
+    <p-table 
+      [value]="albergues" 
+      [paginator]="true" 
+      [rows]="10"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} albergues"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      styleClass="p-datatable-gridlines">
+      
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="nombre">
+            Nombre 
+            <p-sortIcon field="nombre"></p-sortIcon>
+          </th>
+          <th pSortableColumn="municipio">
+            Ubicación
+            <p-sortIcon field="municipio"></p-sortIcon>
+          </th>
+          <th pSortableColumn="capacidadMaxima">
+            Capacidad
+            <p-sortIcon field="capacidadMaxima"></p-sortIcon>
+          </th>
+          <th>Ocupación</th>
+          <th pSortableColumn="estado">
+            Estado
+            <p-sortIcon field="estado"></p-sortIcon>
+          </th>
+          <th>Contacto</th>
+          <th>Servicios</th>
+          <th>Acciones</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-albergue>
+        <tr>
+          <td>
+            <div class="albergue-name">
+              <strong>{{ albergue.nombre }}</strong>
+              <br>
+              <small class="text-600">{{ albergue.direccion }}</small>
+            </div>
+          </td>
+          <td>
+            <div class="ubicacion">
+              <i class="pi pi-map-marker text-primary"></i>
+              {{ albergue.municipio }}
+              <br>
+              <small class="text-600">{{ albergue.asentamiento }}</small>
+            </div>
+          </td>
+          <td class="text-center">
+            <strong>{{ albergue.capacidadMaxima }}</strong>
+          </td>
+          <td>
+            <div class="ocupacion-info">
+              <div class="ocupacion-text">
+                {{ albergue.capacidadActual }} / {{ albergue.capacidadMaxima }}
+                ({{ ((albergue.capacidadActual / albergue.capacidadMaxima) * 100).toFixed(0) }}%)
+              </div>
+              <p-progressBar 
+                [value]="(albergue.capacidadActual / albergue.capacidadMaxima) * 100"
+                [showValue]="false"
+                styleClass="progress-sm mt-1">
+              </p-progressBar>
+            </div>
+          </td>
+          <td>
+            <p-tag 
+              [value]="albergue.estado" 
+              [severity]="getSeverity(albergue.estado)">
+            </p-tag>
+          </td>
+          <td>
+            <div class="contacto-info">
+              <div><i class="pi pi-user"></i> {{ albergue.contacto.responsable }}</div>
+              <div *ngIf="albergue.contacto.telefono">
+                <i class="pi pi-phone"></i> {{ albergue.contacto.telefono }}
+              </div>
+              <div *ngIf="albergue.contacto.email">
+                <i class="pi pi-envelope"></i> {{ albergue.contacto.email }}
+              </div>
+            </div>
+          </td>
+          <td>
+            <div class="servicios-list">
+              <p-tag 
+                *ngFor="let servicio of albergue.servicios.slice(0, 2)" 
+                [value]="servicio"
+                severity="info"
+                styleClass="mr-1 mb-1 service-tag">
+              </p-tag>
+              <span *ngIf="albergue.servicios.length > 2" class="text-600">
+                +{{ albergue.servicios.length - 2 }} más
+              </span>
+            </div>
+          </td>
+          <td>
+            <div class="action-buttons">
+              <p-button 
+                icon="pi pi-pencil" 
+                styleClass="p-button-text p-button-sm"
+                (click)="openEditDialog(albergue)"
+                pTooltip="Editar">
+              </p-button>
+              <p-button 
+                icon="pi pi-trash" 
+                styleClass="p-button-text p-button-danger p-button-sm"
+                (click)="deleteAlbergue(albergue)"
+                pTooltip="Eliminar">
+              </p-button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="8" class="text-center">
+            <div class="empty-state">
+              <i class="pi pi-home" style="font-size: 3rem; color: #ccc;"></i>
+              <p>No hay albergues registrados</p>
+              <p-button 
+                label="Crear Primer Albergue" 
+                icon="pi pi-plus"
+                (click)="openNewDialog()">
+              </p-button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
+
+<!-- Dialog para Crear/Editar Albergue -->
+<p-dialog 
+  [header]="isEditing ? 'Editar Albergue' : 'Nuevo Albergue'"
+  [(visible)]="showDialog" 
+  [style]="{'width': '90vw', 'max-width': '800px'}"
+  [modal]="true"
+  [closable]="true"
+  [draggable]="false"
+  [resizable]="false">
+  
+  <form [formGroup]="albergueForm" (ngSubmit)="saveAlbergue()" class="albergue-form">
+    <!-- Información Básica -->
+    <div class="form-section">
+      <h4><i class="pi pi-info-circle"></i> Información Básica</h4>
+      <div class="formgrid grid">
+        <div class="field col-12">
+          <label for="nombre" class="block text-900 font-medium mb-2">
+            Nombre del Albergue <span class="text-red-500">*</span>
+          </label>
+          <input 
+            pInputText 
+            id="nombre" 
+            formControlName="nombre"
+            placeholder="Ej: Albergue Temporal Centro"
+            class="w-full"
+            [class.ng-invalid]="hasFieldError('nombre')"
+            [class.ng-dirty]="hasFieldError('nombre')" />
+          <small *ngIf="hasFieldError('nombre')" class="p-error block mt-1">
+            {{ getFieldError('nombre') }}
+          </small>
+        </div>
+
+        <div class="field col-12">
+          <label for="direccion" class="block text-900 font-medium mb-2">
+            Dirección Completa <span class="text-red-500">*</span>
+          </label>
+          <textarea 
+            pInputTextarea 
+            id="direccion" 
+            formControlName="direccion"
+            placeholder="Calle, número, colonia, ciudad, estado"
+            class="w-full"
+            rows="2"
+            [class.ng-invalid]="hasFieldError('direccion')"
+            [class.ng-dirty]="hasFieldError('direccion')">
+          </textarea>
+          <small *ngIf="hasFieldError('direccion')" class="p-error block mt-1">
+            {{ getFieldError('direccion') }}
+          </small>
+        </div>
+
+        <div class="field col-12 md:col-6">
+          <label for="municipio" class="block text-900 font-medium mb-2">
+            Municipio <span class="text-red-500">*</span>
+          </label>
+          <p-dropdown
+            id="municipio"
+            formControlName="municipio"
+            [options]="municipioOptions"
+            placeholder="Seleccione el municipio"
+            styleClass="w-full"
+            [filter]="true"
+            [class.ng-invalid]="hasFieldError('municipio')"
+            [class.ng-dirty]="hasFieldError('municipio')">
+          </p-dropdown>
+          <small *ngIf="hasFieldError('municipio')" class="p-error block mt-1">
+            {{ getFieldError('municipio') }}
+          </small>
+        </div>
+
+        <div class="field col-12 md:col-6">
+          <label for="asentamiento" class="block text-900 font-medium mb-2">
+            Asentamiento <span class="text-red-500">*</span>
+          </label>
+          <p-dropdown
+            id="asentamiento"
+            formControlName="asentamiento"
+            [options]="asentamientoOptions"
+            placeholder="Seleccione el asentamiento"
+            styleClass="w-full"
+            [filter]="true"
+            [disabled]="!asentamientoOptions.length"
+            [class.ng-invalid]="hasFieldError('asentamiento')"
+            [class.ng-dirty]="hasFieldError('asentamiento')">
+          </p-dropdown>
+          <small *ngIf="hasFieldError('asentamiento')" class="p-error block mt-1">
+            {{ getFieldError('asentamiento') }}
+          </small>
+        </div>
+
+        <div class="field col-12 md:col-6">
+          <label for="capacidad" class="block text-900 font-medium mb-2">
+            Capacidad Máxima <span class="text-red-500">*</span>
+          </label>
+          <p-inputNumber
+            id="capacidad"
+            formControlName="capacidadMaxima"
+            placeholder="Número de personas"
+            styleClass="w-full"
+            [min]="1"
+            [showButtons]="true"
+            [class.ng-invalid]="hasFieldError('capacidadMaxima')"
+            [class.ng-dirty]="hasFieldError('capacidadMaxima')">
+          </p-inputNumber>
+          <small *ngIf="hasFieldError('capacidadMaxima')" class="p-error block mt-1">
+            {{ getFieldError('capacidadMaxima') }}
+          </small>
+        </div>
+
+        <div class="field col-12 md:col-6">
+          <label for="servicios" class="block text-900 font-medium mb-2">
+            Servicios Disponibles <span class="text-red-500">*</span>
+          </label>
+          <p-multiSelect
+            id="servicios"
+            formControlName="servicios"
+            [options]="serviciosDisponibles"
+            placeholder="Seleccione los servicios"
+            styleClass="w-full"
+            [filter]="true"
+            [class.ng-invalid]="hasFieldError('servicios')"
+            [class.ng-dirty]="hasFieldError('servicios')">
+          </p-multiSelect>
+          <small *ngIf="hasFieldError('servicios')" class="p-error block mt-1">
+            {{ getFieldError('servicios') }}
+          </small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Información de Contacto -->
+    <div class="form-section" formGroupName="contacto">
+      <h4><i class="pi pi-phone"></i> Información de Contacto</h4>
+      <div class="formgrid grid">
+        <div class="field col-12 md:col-4">
+          <label for="responsable" class="block text-900 font-medium mb-2">
+            Responsable <span class="text-red-500">*</span>
+          </label>
+          <input 
+            pInputText 
+            id="responsable" 
+            formControlName="responsable"
+            placeholder="Nombre del responsable"
+            class="w-full"
+            [class.ng-invalid]="hasFieldError('contacto.responsable')"
+            [class.ng-dirty]="hasFieldError('contacto.responsable')" />
+          <small *ngIf="hasFieldError('contacto.responsable')" class="p-error block mt-1">
+            {{ getFieldError('contacto.responsable') }}
+          </small>
+        </div>
+
+        <div class="field col-12 md:col-4">
+          <label for="telefono" class="block text-900 font-medium mb-2">
+            Teléfono
+          </label>
+          <input 
+            pInputText 
+            id="telefono" 
+            formControlName="telefono"
+            placeholder="782-123-4567"
+            class="w-full"
+            [class.ng-invalid]="hasFieldError('contacto.telefono')"
+            [class.ng-dirty]="hasFieldError('contacto.telefono')" />
+          <small *ngIf="hasFieldError('contacto.telefono')" class="p-error block mt-1">
+            {{ getFieldError('contacto.telefono') }}
+          </small>
+        </div>
+
+        <div class="field col-12 md:col-4">
+          <label for="email" class="block text-900 font-medium mb-2">
+            Email
+          </label>
+          <input 
+            pInputText 
+            id="email" 
+            formControlName="email"
+            placeholder="contacto@albergue.gob.mx"
+            class="w-full"
+            [class.ng-invalid]="hasFieldError('contacto.email')"
+            [class.ng-dirty]="hasFieldError('contacto.email')" />
+          <small *ngIf="hasFieldError('contacto.email')" class="p-error block mt-1">
+            {{ getFieldError('contacto.email') }}
+          </small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ubicación GPS (Opcional) -->
+    <div class="form-section" formGroupName="ubicacion">
+      <h4><i class="pi pi-map"></i> Coordenadas GPS (Opcional)</h4>
+      <div class="formgrid grid">
+        <div class="field col-12 md:col-6">
+          <label for="latitud" class="block text-900 font-medium mb-2">
+            Latitud
+          </label>
+          <p-inputNumber
+            id="latitud"
+            formControlName="latitud"
+            placeholder="20.533"
+            styleClass="w-full"
+            [minFractionDigits]="6"
+            [maxFractionDigits]="6">
+          </p-inputNumber>
+        </div>
+
+        <div class="field col-12 md:col-6">
+          <label for="longitud" class="block text-900 font-medium mb-2">
+            Longitud
+          </label>
+          <p-inputNumber
+            id="longitud"
+            formControlName="longitud"
+            placeholder="-97.460"
+            styleClass="w-full"
+            [minFractionDigits]="6"
+            [maxFractionDigits]="6">
+          </p-inputNumber>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <ng-template pTemplate="footer">
+    <div class="dialog-footer">
+      <p-button 
+        label="Cancelar" 
+        icon="pi pi-times" 
+        styleClass="p-button-text p-button-secondary"
+        (click)="cancelDialog()">
+      </p-button>
+      <p-button 
+        [label]="isEditing ? 'Actualizar' : 'Crear Albergue'"
+        icon="pi pi-check" 
+        (click)="saveAlbergue()"
+        [disabled]="albergueForm.invalid">
+      </p-button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<!-- Toast para notificaciones -->
+<p-toast></p-toast>
+
+<!-- Diálogo de confirmación -->
+<p-confirmDialog></p-confirmDialog>

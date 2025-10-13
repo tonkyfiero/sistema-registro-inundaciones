@@ -1,0 +1,89 @@
+### Variables
+@baseUrl = http://localhost:5120
+@contentType = application/json
+
+### Health Check
+GET {{baseUrl}}/health
+
+### Get all municipalities
+GET {{baseUrl}}/api/municipalities
+
+### Create a new municipality
+POST {{baseUrl}}/api/municipalities
+Content-Type: {{contentType}}
+
+{
+  "nombre": "Poza Rica",
+  "estado": "Veracruz"
+}
+
+### Get municipality by ID
+GET {{baseUrl}}/api/municipalities/1
+
+### Get all settlements
+GET {{baseUrl}}/api/settlements
+
+### Create a new settlement
+POST {{baseUrl}}/api/settlements
+Content-Type: {{contentType}}
+
+{
+  "nombre": "Centro",
+  "municipioId": 1,
+  "tipoAsentamiento": "Colonia",
+  "ambito": "Urbano"
+}
+
+### Get settlements by municipality
+GET {{baseUrl}}/api/settlements/by-municipality/1
+
+### Get all shelters
+GET {{baseUrl}}/api/shelters
+
+### Create a new shelter
+POST {{baseUrl}}/api/shelters
+Content-Type: {{contentType}}
+
+{
+  "nombre": "Albergue Central Poza Rica",
+  "direccion": "Calle Principal 123, Centro",
+  "municipioId": 1,
+  "capacidadMaxima": 100,
+  "responsable": "Juan Pérez",
+  "fechaApertura": "2024-10-12T00:00:00"
+}
+
+### Get available shelters
+GET {{baseUrl}}/api/shelters/available
+
+### Get all persons (paginated)
+GET {{baseUrl}}/api/persons?page=1&pageSize=10
+
+### Search persons
+GET {{baseUrl}}/api/persons/search?query=Juan
+
+### Create a new person
+POST {{baseUrl}}/api/persons
+Content-Type: {{contentType}}
+
+{
+  "nombre": "María",
+  "apellidoPaterno": "González",
+  "apellidoMaterno": "López",
+  "edad": 35,
+  "sexo": "F",
+  "municipioId": 1,
+  "asentamientoNombre": "Centro"
+}
+
+### Assign person to shelter
+PATCH {{baseUrl}}/api/persons/1/assign-shelter
+Content-Type: {{contentType}}
+
+1
+
+### Update shelter capacity
+PATCH {{baseUrl}}/api/shelters/1/capacity
+Content-Type: {{contentType}}
+
+25

@@ -1,0 +1,133 @@
+<div class="home-container">
+  <!-- Hero Section -->
+  <div class="hero-section">
+    <div class="hero-content">
+      <h1 class="hero-title">Sistema de Registro de Personas en Albergues</h1>
+      <p class="hero-subtitle">
+        Plataforma de apoyo para el registro y seguimiento de personas afectadas por las inundaciones 
+        en los municipios de Poza Rica, Tuxpan y Álamo Temapache, Veracruz.
+      </p>
+      <div class="hero-actions">
+        <p-button 
+          label="Registrar Persona" 
+          icon="pi pi-plus" 
+          styleClass="p-button-lg"
+          routerLink="/registro-persona">
+        </p-button>
+        <p-button 
+          label="Ver Albergues" 
+          icon="pi pi-home" 
+          styleClass="p-button-outlined p-button-lg"
+          routerLink="/albergues">
+        </p-button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Carousel de Imágenes -->
+  <div class="carousel-section">
+    <h2>Situación Actual en los Municipios Afectados</h2>
+    <p-carousel 
+      [value]="images" 
+      [numVisible]="1" 
+      [numScroll]="1" 
+      [circular]="true"
+      [autoplayInterval]="5000"
+      [showIndicators]="true"
+      [showNavigators]="true">
+      <ng-template pTemplate="item" let-image>
+        <div class="carousel-item">
+          <div class="image-container">
+            <img [src]="image.src" [alt]="image.alt" class="carousel-image" />
+            <div class="image-overlay">
+              <h3>{{ image.title }}</h3>
+              <p>{{ image.description }}</p>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+    </p-carousel>
+  </div>
+
+  <!-- Información del Propósito -->
+  <div class="info-section">
+    <div class="grid">
+      <div class="col-12 md:col-8">
+        <p-card>
+          <h3>¿Por qué existe este sistema?</h3>
+          <p class="info-text">
+            Las recientes inundaciones en los municipios de <strong>Poza Rica de Hidalgo</strong>, 
+            <strong>Tuxpan</strong> y <strong>Álamo Temapache</strong> han afectado a miles de familias, 
+            quienes han tenido que ser evacuadas y alojadas en diversos albergues temporales.
+          </p>
+          <p class="info-text">
+            Este sistema tiene como objetivo principal:
+          </p>
+          <ul class="purpose-list">
+            <li><i class="pi pi-check-circle text-green-500"></i> Mantener un registro actualizado de todas las personas en albergues</li>
+            <li><i class="pi pi-check-circle text-green-500"></i> Facilitar la localización de familiares</li>
+            <li><i class="pi pi-check-circle text-green-500"></i> Coordinar la distribución de ayuda humanitaria</li>
+            <li><i class="pi pi-check-circle text-green-500"></i> Proporcionar información confiable a las autoridades</li>
+            <li><i class="pi pi-check-circle text-green-500"></i> Garantizar la dignidad y derechos de las personas afectadas</li>
+          </ul>
+        </p-card>
+      </div>
+      <div class="col-12 md:col-4">
+        <p-card>
+          <h4>Estadísticas</h4>
+          <div class="statistics-grid">
+            <div class="stat-item" *ngFor="let stat of statistics">
+              <div class="stat-icon">
+                <i [class]="stat.icon"></i>
+              </div>
+              <div class="stat-content">
+                <div class="stat-value">{{ stat.value }}</div>
+                <div class="stat-label">{{ stat.label }}</div>
+              </div>
+            </div>
+          </div>
+        </p-card>
+      </div>
+    </div>
+  </div>
+
+  <!-- Call to Action -->
+  <div class="cta-section">
+    <p-card>
+      <div class="cta-content">
+        <h3>¿Cómo puedes ayudar?</h3>
+        <div class="cta-grid">
+          <div class="cta-item">
+            <i class="pi pi-users cta-icon"></i>
+            <h4>Registra Personas</h4>
+            <p>Si eres responsable de un albergue, registra a las personas que llegan.</p>
+            <p-button label="Ir a Registro" routerLink="/registro-persona" styleClass="p-button-sm"></p-button>
+          </div>
+          <div class="cta-item">
+            <i class="pi pi-home cta-icon"></i>
+            <h4>Administra Albergues</h4>
+            <p>Gestiona la información de albergues y su capacidad.</p>
+            <p-button label="Gestionar" routerLink="/albergues" styleClass="p-button-sm p-button-outlined"></p-button>
+          </div>
+          <div class="cta-item">
+            <i class="pi pi-search cta-icon"></i>
+            <h4>Busca Familiares</h4>
+            <p>Consulta el registro para localizar a personas.</p>
+            <p-button label="Buscar" routerLink="/busqueda" styleClass="p-button-sm p-button-secondary"></p-button>
+          </div>
+        </div>
+      </div>
+    </p-card>
+  </div>
+
+  <p-divider></p-divider>
+
+  <!-- Footer Info -->
+  <div class="footer-info">
+    <p class="text-center text-600">
+      Sistema desarrollado para apoyar a las familias afectadas por las inundaciones. 
+      <br>
+      <strong>Juntos salimos adelante.</strong>
+    </p>
+  </div>
+</div>

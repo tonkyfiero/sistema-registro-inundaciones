@@ -1,0 +1,433 @@
+<div class="busqueda-container">
+  <!-- Breadcrumb -->
+  <app-breadcrumb [items]="breadcrumbItems"></app-breadcrumb>
+  
+  <!-- Header -->
+  <div class="page-header">
+    <h1>Búsqueda de Personas Registradas</h1>
+    <p>Encuentra a familiares o conocidos registrados en los albergues</p>
+  </div>
+
+  <!-- Filtros -->
+  <p-card header="Filtros de Búsqueda" class="filtros-card">
+    <div class="filtros-grid">
+      <!-- Filtro de texto general -->
+      <div class="filtro-item">
+        <label for="filtroTexto">Búsqueda general</label>
+        <input 
+          id="filtroTexto"
+          type="text" 
+          pInputText 
+          [(ngModel)]="filtroTexto"
+          (input)="aplicarFiltros()"
+          placeholder="Nombre, apellido o colonia..."
+          class="w-full" />
+      </div>
+
+      <!-- Filtro por municipio albergue -->
+      <div class="filtro-item">
+        <label for="filtroMunicipio">Municipio Albergue</label>
+        <p-dropdown 
+          id="filtroMunicipio"
+          [(ngModel)]="filtroMunicipio"
+          [options]="municipiosOptions"
+          (onChange)="aplicarFiltros()"
+          placeholder="Seleccionar municipio albergue"
+          styleClass="w-full">
+        </p-dropdown>
+      </div>
+
+      <!-- Filtro por sexo -->
+      <div class="filtro-item">
+        <label for="filtroSexo">Sexo</label>
+        <p-dropdown 
+          id="filtroSexo"
+          [(ngModel)]="filtroSexo"
+          [options]="sexoOptions"
+          (onChange)="aplicarFiltros()"
+          placeholder="Seleccionar sexo"
+          styleClass="w-full">
+        </p-dropdown>
+      </div>
+
+      <!-- Filtro por edad mínima -->
+      <div class="filtro-item">
+        <label for="filtroEdadMin">Edad mínima</label>
+        <input 
+          id="filtroEdadMin"
+          type="number" 
+          pInputText 
+          [(ngModel)]="filtroEdadMin"
+          (input)="aplicarFiltros()"
+          placeholder="Edad mínima"
+          class="w-full" />
+      </div>
+
+      <!-- Filtro por edad máxima -->
+      <div class="filtro-item">
+        <label for="filtroEdadMax">Edad máxima</label>
+        <input 
+          id="filtroEdadMax"
+          type="number" 
+          pInputText 
+          [(ngModel)]="filtroEdadMax"
+          (input)="aplicarFiltros()"
+          placeholder="Edad máxima"
+          class="w-full" />
+      </div>
+
+      <!-- Filtro por fecha desde -->
+      <div class="filtro-item">
+        <label for="filtroFechaDesde">Fecha llegada desde</label>
+        <p-calendar 
+          id="filtroFechaDesde"
+          [(ngModel)]="filtroFechaDesde"
+          (onSelect)="aplicarFiltros()"
+          (onClearClick)="aplicarFiltros()"
+          dateFormat="dd/mm/yy"
+          placeholder="Seleccionar fecha"
+          styleClass="w-full"
+          [showIcon]="true">
+        </p-calendar>
+      </div>
+
+      <!-- Filtro por fecha hasta -->
+      <div class="filtro-item">
+        <label for="filtroFechaHasta">Fecha llegada hasta</label>
+        <p-calendar 
+          id="filtroFechaHasta"
+          [(ngModel)]="filtroFechaHasta"
+          (onSelect)="aplicarFiltros()"
+          (onClearClick)="aplicarFiltros()"
+          dateFormat="dd/mm/yy"
+          placeholder="Seleccionar fecha"
+          styleClass="w-full"
+          [showIcon]="true">
+        </p-calendar>
+      </div>
+
+      <!-- Botón limpiar -->
+      <div class="filtro-item filtro-acciones">
+        <p-button 
+          label="Limpiar Filtros" 
+          icon="pi pi-times" 
+          severity="secondary"
+          (onClick)="limpiarFiltros()"
+          styleClass="w-full">
+        </p-button>
+      </div>
+    </div>
+  </p-card>
+
+  <!-- Resultados -->
+  <p-card class="resultados-card">
+    <ng-template pTemplate="header">
+      <div class="resultados-header">
+        <h3>Resultados de la Búsqueda</h3>
+        <p-tag 
+          [value]="personasFiltradas.length + ' persona(s) encontrada(s)'"
+          severity="info">
+        </p-tag>
+      </div>
+    </ng-template>
+
+    <!-- Tabla de resultados -->
+    <p-table 
+      [value]="personasFiltradas"
+      [loading]="loading"
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[5, 10, 20, 50]"
+      [globalFilterFields]="['nombre', 'apellidoPaterno', 'apellidoMaterno']"
+      responsiveLayout="scroll"
+      styleClass="p-datatable-sm"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros">
+      
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="codigoPersona">
+            Código Persona
+            <p-sortIcon field="codigoPersona"></p-sortIcon>
+          </th>
+          <th pSortableColumn="nombre">
+            Nombre Completo
+            <p-sortIcon field="nombre"></p-sortIcon>
+          </th>
+          <th pSortableColumn="edad">
+            Edad
+            <p-sortIcon field="edad"></p-sortIcon>
+          </th>
+          <th pSortableColumn="fechaHoraLlegada">
+            Fecha de Llegada
+            <p-sortIcon field="fechaHoraLlegada"></p-sortIcon>
+          </th>
+          <th pSortableColumn="nombreAlbergue">
+            Albergue
+            <p-sortIcon field="nombreAlbergue"></p-sortIcon>
+          </th>
+          <th pSortableColumn="albergueMunicipioNombre">
+            Municipio Albergue
+            <p-sortIcon field="albergueMunicipioNombre"></p-sortIcon>
+          </th>
+          <th>
+            Familia
+          </th>
+          <th>
+            Acciones
+          </th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-persona>
+        <tr>
+          <td>
+            <p-tag 
+              [value]="persona.codigoPersona"
+              severity="info"
+              class="codigo-tag">
+            </p-tag>
+          </td>
+          <td>
+            <div class="nombre-completo">
+              <strong>{{persona.nombre}} {{persona.apellidoPaterno}}</strong>
+              <div class="apellido-materno" *ngIf="persona.apellidoMaterno">{{persona.apellidoMaterno}}</div>
+            </div>
+          </td>
+          <td>
+            <span class="edad-text">{{getEdadTexto(persona.edad)}}</span>
+          </td>
+          <td>
+            {{formatFecha(persona.fechaHoraLlegada)}}
+          </td>
+          <td>
+              <span class="edad-text">{{persona.nombreAlbergue || 'Sin asignar'}}</span>            
+          </td>
+          <td>
+            <p-tag 
+              [value]="persona.albergueMunicipioNombre || 'N/A'"
+              [severity]="persona.albergueMunicipioNombre ? 'info' : 'secondary'"
+              [icon]="persona.albergueMunicipioNombre ? 'pi pi-map-marker' : 'pi pi-question'">
+            </p-tag>
+          </td>
+          <td>
+            <div *ngIf="tieneGrupoFamiliar(persona); else individual" class="familia-info">
+              <p-tag 
+                value="En Familia"
+                severity="success"
+                icon="pi pi-users"
+                class="familia-tag">
+              </p-tag>              
+            </div>
+            <ng-template #individual>
+              <p-tag 
+                value="Individual"
+                severity="secondary"
+                icon="pi pi-user"
+                class="individual-tag">
+              </p-tag>
+            </ng-template>
+          </td>
+          <td>
+            <p-button 
+              label="Más Detalles"
+              icon="pi pi-info-circle"
+              severity="info"
+              size="small"
+              (click)="verDetalles(persona)"
+              class="detalles-button">
+            </p-button>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="6" class="text-center">
+            <div class="empty-state">
+              <i class="pi pi-search" style="font-size: 3rem; color: var(--text-color-secondary);"></i>
+              <p>No se encontraron personas con los criterios de búsqueda especificados.</p>
+              <p class="text-sm">Intenta ajustar los filtros para obtener más resultados.</p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+
+  <!-- Modal de Detalles -->
+  <p-dialog 
+    header="Detalles Completos de la Persona" 
+    [(visible)]="mostrarDetalles" 
+    [style]="{width: '80vw', maxWidth: '900px'}"
+    [modal]="true"
+    [closable]="true"
+    [draggable]="false"
+    [resizable]="true"
+    styleClass="detalles-dialog">
+    
+    <div *ngIf="personaSeleccionada" class="detalles-container">
+      
+      <!-- Información Personal -->
+      <p-panel header="Información Personal" [toggleable]="true" [collapsed]="false">
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Código de Persona:</label>
+            <span class="codigo-value">{{personaSeleccionada.codigoPersona}}</span>
+          </div>
+          <div class="info-item">
+            <label>Nombre Completo:</label>
+            <span>{{personaSeleccionada.nombre}} {{personaSeleccionada.apellidoPaterno}} {{personaSeleccionada.apellidoMaterno}}</span>
+          </div>
+          <div class="info-item">
+            <label>Edad:</label>
+            <span>{{personaSeleccionada.edad}} años</span>
+          </div>
+          <div class="info-item">
+            <label>Sexo:</label>
+            <span>{{getSexoLabel(personaSeleccionada.sexo || '')}}</span>
+          </div>
+          <div class="info-item">
+            <label>Teléfono:</label>
+            <span>{{detallesCompletos?.telefono || 'No especificado'}}</span>
+          </div>
+          <div class="info-item">
+            <label>Email:</label>
+            <span>{{detallesCompletos?.email || 'No especificado'}}</span>
+          </div>
+        </div>
+      </p-panel>
+
+      <!-- Información de Ubicación -->
+      <p-panel header="Información de Ubicación" [toggleable]="true" [collapsed]="false">
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Municipio de Origen:</label>
+            <span>{{personaSeleccionada.municipioNombre}}</span>
+          </div>
+          <div class="info-item">
+            <label>Asentamiento/Colonia:</label>
+            <span>{{personaSeleccionada.coloniaNombre}}</span>
+          </div>
+          <div class="info-item">
+            <label>Dirección Anterior:</label>
+            <span>{{detallesCompletos?.direccionAnterior || 'No especificada'}}</span>
+          </div>
+        </div>
+      </p-panel>
+
+      <!-- Información del Albergue -->
+      <p-panel header="Información del Albergue" [toggleable]="true" [collapsed]="false">
+        <div class="info-grid">
+          <div class="info-item">
+            <label>ID del Albergue:</label>
+            <span>{{personaSeleccionada.albergueId || 'Sin asignar'}}</span>
+          </div>
+          <div class="info-item">
+            <label>Nombre del Albergue:</label>
+            <span>{{personaSeleccionada.nombreAlbergue}}</span>
+          </div>
+          <div class="info-item">
+            <label>Fecha de Llegada:</label>
+            <span>{{formatFecha(personaSeleccionada.fechaHoraLlegada)}}</span>
+          </div>
+          <div class="info-item">
+            <label>Estado:</label>
+            <span>{{detallesCompletos?.estado || 'No especificado'}}</span>
+          </div>
+        </div>
+      </p-panel>
+
+      <!-- Información del Grupo Familiar -->
+      <p-panel 
+        header="Información del Grupo Familiar" 
+        [toggleable]="true" 
+        [collapsed]="false"
+        *ngIf="tieneGrupoFamiliar(personaSeleccionada)">
+        <div class="familia-info-detalle">
+          <div class="info-item">
+            <label>ID del Grupo Familiar:</label>
+            <span>{{personaSeleccionada.grupoFamiliarId}}</span>
+          </div>
+          <div class="info-item">
+            <label>Nombre del Grupo:</label>
+            <span>{{detallesCompletos?.grupoFamiliar?.nombre || 'Grupo Familiar ' + personaSeleccionada.grupoFamiliarId}}</span>
+          </div>
+          <div class="info-item">
+            <label>Es Cabeza de Familia:</label>
+            <span>{{personaSeleccionada.esCabezaFamilia ? 'Sí' : 'No'}}</span>
+          </div>
+          <div class="info-item">
+            <label>Cantidad de Miembros:</label>
+            <span>{{detallesCompletos?.grupoFamiliar?.cantidadMiembros || 'No especificado'}}</span>
+          </div>
+          
+          <!-- Lista de Familiares -->
+          <div class="miembros-familia" *ngIf="miembrosFamilia && miembrosFamilia.length > 0">
+            <label>Miembros del Grupo Familiar:</label>
+            <div class="lista-miembros">
+              <p-card *ngFor="let miembro of miembrosFamilia" class="miembro-card">
+                <div class="miembro-info">
+                  <strong>{{miembro.nombre}} {{miembro.apellidoPaterno}} {{miembro.apellidoMaterno}}</strong>
+                  <small>ID: {{miembro.codigoPersona}}</small>
+                  <p-tag 
+                    *ngIf="miembro.esCabezaFamilia"
+                    value="Cabeza de Familia"
+                    severity="warning"
+                    class="mt-2">
+                  </p-tag>
+                </div>
+              </p-card>
+            </div>
+          </div>
+        </div>
+      </p-panel>
+
+      <!-- Sin Grupo Familiar -->
+      <p-panel 
+        header="Información Familiar" 
+        [toggleable]="true" 
+        [collapsed]="false"
+        *ngIf="!tieneGrupoFamiliar(personaSeleccionada)">
+        <div class="sin-familia-info">
+          <p><i class="pi pi-info-circle"></i> Esta persona está registrada de forma individual, no pertenece a ningún grupo familiar.</p>
+        </div>
+      </p-panel>
+
+      <!-- Condiciones Médicas -->
+      <p-panel 
+        header="Condiciones Médicas" 
+        [toggleable]="true" 
+        [collapsed]="true"
+        *ngIf="personaSeleccionada.condicionesMedicas && personaSeleccionada.condicionesMedicas.length > 0">
+        <div class="condiciones-medicas">
+          <div *ngFor="let condicion of personaSeleccionada.condicionesMedicas" class="condicion-item">
+            <p-tag [value]="condicion.tipo" severity="danger" class="mb-2"></p-tag>
+            <p>{{condicion.descripcion}}</p>
+          </div>
+        </div>
+      </p-panel>
+
+      <!-- Sin Condiciones Médicas -->
+      <p-panel 
+        header="Condiciones Médicas" 
+        [toggleable]="true" 
+        [collapsed]="true"
+        *ngIf="!personaSeleccionada.condicionesMedicas || personaSeleccionada.condicionesMedicas.length === 0">
+        <div class="sin-condiciones">
+          <p><i class="pi pi-check-circle text-green-500"></i> No tiene condiciones médicas registradas.</p>
+        </div>
+      </p-panel>
+
+    </div>
+
+    <ng-template pTemplate="footer">
+      <p-button 
+        label="Cerrar" 
+        icon="pi pi-times" 
+        (click)="cerrarDetalles()"
+        severity="secondary">
+      </p-button>
+    </ng-template>
+  </p-dialog>
+</div>

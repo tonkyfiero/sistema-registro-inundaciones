@@ -1,0 +1,17 @@
+{
+  "albergueId": 1,
+  "requiereAyudaEspecial": false,
+  "descripcionSituacion": "Familia de prueba",
+  "miembros": [
+    {
+      "nombre": "María",
+      "apellidoPaterno": "González",
+      "apellidoMaterno": "López",
+      "edad": 35,
+      "sexo": "F",
+      "municipioId": 1,
+      "asentamientoNombre": "Centro",
+      "esCabezaFamilia": true
+    }
+  ]
+}

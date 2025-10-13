@@ -1,0 +1,10 @@
+<!-- Este archivo es un placeholder para representar una imagen de inundación en Poza Rica -->
+<svg width="800" height="400" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="400" fill="#4a90e2"/>
+  <text x="400" y="180" text-anchor="middle" fill="white" font-size="24" font-family="Arial">
+    Inundación en Poza Rica de Hidalgo
+  </text>
+  <text x="400" y="220" text-anchor="middle" fill="white" font-size="16" font-family="Arial">
+    [Imagen de referencia]
+  </text>
+</svg>
