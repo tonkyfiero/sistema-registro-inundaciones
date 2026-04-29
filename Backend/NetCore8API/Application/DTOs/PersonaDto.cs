@@ -74,6 +74,7 @@ public class CrearPersonaDto
     public bool EsCabezaFamilia { get; set; } = false;
     public int? GrupoFamiliarId { get; set; }
     public string? Parentesco { get; set; }
+    public int? AlbergueId { get; set; }
     public string? Observaciones { get; set; }
     public string? DocumentoIdentidad { get; set; }
     public string? TelefonoContacto { get; set; }

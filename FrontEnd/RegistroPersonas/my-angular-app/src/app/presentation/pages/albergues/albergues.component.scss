@@ -362,4 +362,28 @@
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
     }
   }
+
+  // Estilos para filtros
+  .filtros-container {
+    margin-bottom: 1.5rem;
+
+    .filter-row {
+      display: flex;
+      gap: 1rem;
+      align-items: end;
+      flex-wrap: wrap;
+
+      .filter-field {
+        min-width: 200px;
+        flex: 1;
+
+        label {
+          display: block;
+          margin-bottom: 0.5rem;
+          font-weight: 600;
+          color: #374151;
+        }
+      }
+    }
+  }
 }

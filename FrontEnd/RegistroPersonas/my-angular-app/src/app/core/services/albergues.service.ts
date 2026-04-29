@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, BehaviorSubject, catchError, map } from 'rxjs';
 import { API_URLS } from '../config/api.config';
-import { AlbergueDto, CreateAlbergueDto, ActualizarCapacidadDto } from '../models/api.models';
+import { AlbergueDto, CreateAlbergueDto, UpdateAlbergueDto, ActualizarCapacidadDto, EstadisticasAlberguesDto } from '../models/api.models';
 import { Albergue, CreateAlbergueRequest } from '../../domain/entities/albergue.entity';
 import alberguesData from '../../data/albergues.json';
 
@@ -96,10 +96,13 @@ export class AlberguesService {
   }
 
   createAlbergue(request: CreateAlbergueRequest): Observable<Albergue> {
+    // Obtener el municipioId del municipio seleccionado
+    const municipioId = this.getMunicipioIdByName(request.municipio);
+    
     const createDto: CreateAlbergueDto = {
       nombre: request.nombre,
       direccion: request.direccion,
-      municipioId: 1, // Por defecto, debería obtenerse del municipio seleccionado
+      municipioId: municipioId, // Usar el ID correcto
       asentamiento: request.asentamiento,
       capacidadMaxima: request.capacidadMaxima,
       servicios: request.servicios.join(', '),
@@ -131,26 +134,48 @@ export class AlberguesService {
       );
   }
 
-  updateAlbergue(id: number, updates: Partial<Albergue>): Observable<Albergue | null> {
-    // Para actualizaciones parciales, primero obtenemos el albergue actual
-    return this.getAlbergueById(id).pipe(
-      map(albergue => {
-        if (!albergue) return null;
-        
-        // Aquí normalmente haríamos un PUT/PATCH al API
-        // Por ahora simulamos la actualización
-        const albergueActualizado = { ...albergue, ...updates };
-        
-        const albergues = this.alberguesSubject.value;
-        const index = albergues.findIndex(a => a.id === id);
-        if (index !== -1) {
-          albergues[index] = albergueActualizado;
-          this.alberguesSubject.next([...albergues]);
-        }
-        
-        return albergueActualizado;
-      })
-    );
+  updateAlbergue(id: number, request: CreateAlbergueRequest): Observable<Albergue | null> {
+    // Obtener el municipioId del municipio seleccionado
+    const municipioId = this.getMunicipioIdByName(request.municipio);
+    
+    const updateDto: UpdateAlbergueDto = {
+      nombre: request.nombre,
+      direccion: request.direccion,
+      municipioId: municipioId,
+      asentamiento: request.asentamiento,
+      capacidadMaxima: request.capacidadMaxima,
+      servicios: request.servicios.join(', '),
+      contactoTelefono: request.contacto.telefono,
+      contactoEmail: request.contacto.email,
+      responsable: request.contacto.responsable,
+      estado: 'Activo',
+      latitud: request.ubicacion?.latitud,
+      longitud: request.ubicacion?.longitud
+    };
+
+    return this.http.put<AlbergueDto>(`${API_URLS.ALBERGUES_BASE}/${id}`, updateDto)
+      .pipe(
+        map(dto => this.mapAlbergueDtoToAlbergue(dto)),
+        catchError((error) => {
+          console.error('Error updating albergue via API:', error);
+          // Fallback: actualizar localmente
+          const albergues = this.alberguesSubject.value;
+          const index = albergues.findIndex(a => a.id === id);
+          
+          if (index !== -1) {
+            const albergueActualizado: Albergue = {
+              ...albergues[index],
+              ...request,
+              id: id
+            };
+            albergues[index] = albergueActualizado;
+            this.alberguesSubject.next([...albergues]);
+            return of(albergueActualizado);
+          }
+          
+          return of(null);
+        })
+      );
   }
 
   actualizarCapacidad(id: number, nuevaCapacidad: number): Observable<boolean> {
@@ -212,15 +237,39 @@ export class AlberguesService {
   }
 
   getEstadisticas(): Observable<{total: number, activos: number, llenos: number, ocupacion: number}> {
-    const albergues = this.alberguesSubject.value;
-    const total = albergues.length;
-    const activos = albergues.filter(a => a.estado === 'Activo').length;
-    const llenos = albergues.filter(a => a.estado === 'Lleno').length;
-    
-    const capacidadTotal = albergues.reduce((sum, a) => sum + a.capacidadMaxima, 0);
-    const ocupacionTotal = albergues.reduce((sum, a) => sum + a.capacidadActual, 0);
-    const ocupacion = capacidadTotal > 0 ? (ocupacionTotal / capacidadTotal) * 100 : 0;
+    return this.http.get<EstadisticasAlberguesDto>(`${API_URLS.ALBERGUES_BASE}/estadisticas`)
+      .pipe(
+        map(dto => ({
+          total: dto.total,
+          activos: dto.activos,
+          llenos: dto.llenos,
+          ocupacion: dto.ocupacionGeneral
+        })),
+        catchError((error) => {
+          console.error('Error fetching statistics from API, using fallback:', error);
+          // Fallback: calcular localmente
+          const albergues = this.alberguesSubject.value;
+          const total = albergues.length;
+          const activos = albergues.filter(a => a.estado === 'Activo').length;
+          const llenos = albergues.filter(a => a.estado === 'Lleno').length;
+          
+          const capacidadTotal = albergues.reduce((sum, a) => sum + a.capacidadMaxima, 0);
+          const ocupacionTotal = albergues.reduce((sum, a) => sum + a.capacidadActual, 0);
+          const ocupacion = capacidadTotal > 0 ? (ocupacionTotal / capacidadTotal) * 100 : 0;
 
-    return of({ total, activos, llenos, ocupacion });
+          return of({ total, activos, llenos, ocupacion });
+        })
+      );
+  }
+
+  // Método helper para obtener el ID del municipio basado en el nombre
+  private getMunicipioIdByName(municipioNombre: string): number {
+    const municipioMap: { [key: string]: number } = {
+      'Poza Rica de Hidalgo': 1,
+      'Álamo Temapache': 2,
+      'Tuxpan': 3
+    };
+    
+    return municipioMap[municipioNombre] || 1;
   }
 }

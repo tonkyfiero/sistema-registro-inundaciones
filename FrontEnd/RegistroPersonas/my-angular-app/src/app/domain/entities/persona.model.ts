@@ -6,6 +6,7 @@ export interface PersonaBase {
   apellidoMaterno: string;
   edad: number;
   sexo?: 'M' | 'F';
+  telefonoContacto?: string;
 }
 
 export interface UbicacionInfo {

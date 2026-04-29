@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
+import { AuthService } from '../../../core/services/auth.service';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
@@ -33,26 +34,25 @@ export class LoginComponent implements OnInit {
   loginForm: FormGroup;
   isLoading = false;
   errorMessage = '';
-
-  roles = [
-    { label: 'Administrador', value: 'Admin' },
-    { label: 'Responsable de Albergue', value: 'Albergue' },
-    { label: 'Visitante', value: 'Visitante' }
-  ];
+  returnUrl = '';
 
   constructor(
     private fb: FormBuilder,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute,
+    private authService: AuthService
   ) {
     this.loginForm = this.fb.group({
       username: ['', [Validators.required, Validators.minLength(3)]],
       password: ['', [Validators.required, Validators.minLength(4)]],
-      role: ['Visitante', Validators.required],
       rememberMe: [false]
     });
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    // Obtener returnUrl de los query parameters
+    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
+  }
 
   onSubmit() {
     if (this.loginForm.valid) {
@@ -61,33 +61,22 @@ export class LoginComponent implements OnInit {
       
       const formData = this.loginForm.value;
       
-      // Simulación de login (aquí conectarías con tu servicio de autenticación)
-      setTimeout(() => {
-        this.isLoading = false;
-        
-        // Simulación de validación
-        if (formData.username === 'admin' && formData.password === 'admin') {
-          // Guardar información de sesión
-          localStorage.setItem('currentUser', JSON.stringify({
-            username: formData.username,
-            role: formData.role
-          }));
+      this.authService.login(formData.username, formData.password).subscribe({
+        next: (success) => {
+          this.isLoading = false;
           
-          // Redireccionar según el rol
-          switch (formData.role) {
-            case 'Admin':
-              this.router.navigate(['/dashboard']);
-              break;
-            case 'Albergue':
-              this.router.navigate(['/albergues']);
-              break;
-            default:
-              this.router.navigate(['/home']);
+          if (success) {
+            // Redireccionar a la URL de retorno o home por defecto
+            this.router.navigate([this.returnUrl]);
+          } else {
+            this.errorMessage = 'Usuario o contraseña incorrectos';
           }
-        } else {
-          this.errorMessage = 'Usuario o contraseña incorrectos';
+        },
+        error: () => {
+          this.isLoading = false;
+          this.errorMessage = 'Error de conexión. Intente nuevamente.';
         }
-      }, 1000);
+      });
     } else {
       this.markFormGroupTouched();
     }
@@ -126,5 +115,9 @@ export class LoginComponent implements OnInit {
   hasFieldError(fieldName: string): boolean {
     const field = this.loginForm.get(fieldName);
     return !!(field?.errors && field.touched);
+  }
+
+  cancelar() {
+    this.router.navigate(['/home']);
   }
 }

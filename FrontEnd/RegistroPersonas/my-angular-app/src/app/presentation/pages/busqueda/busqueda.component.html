@@ -50,62 +50,6 @@
         </p-dropdown>
       </div>
 
-      <!-- Filtro por edad mínima -->
-      <div class="filtro-item">
-        <label for="filtroEdadMin">Edad mínima</label>
-        <input 
-          id="filtroEdadMin"
-          type="number" 
-          pInputText 
-          [(ngModel)]="filtroEdadMin"
-          (input)="aplicarFiltros()"
-          placeholder="Edad mínima"
-          class="w-full" />
-      </div>
-
-      <!-- Filtro por edad máxima -->
-      <div class="filtro-item">
-        <label for="filtroEdadMax">Edad máxima</label>
-        <input 
-          id="filtroEdadMax"
-          type="number" 
-          pInputText 
-          [(ngModel)]="filtroEdadMax"
-          (input)="aplicarFiltros()"
-          placeholder="Edad máxima"
-          class="w-full" />
-      </div>
-
-      <!-- Filtro por fecha desde -->
-      <div class="filtro-item">
-        <label for="filtroFechaDesde">Fecha llegada desde</label>
-        <p-calendar 
-          id="filtroFechaDesde"
-          [(ngModel)]="filtroFechaDesde"
-          (onSelect)="aplicarFiltros()"
-          (onClearClick)="aplicarFiltros()"
-          dateFormat="dd/mm/yy"
-          placeholder="Seleccionar fecha"
-          styleClass="w-full"
-          [showIcon]="true">
-        </p-calendar>
-      </div>
-
-      <!-- Filtro por fecha hasta -->
-      <div class="filtro-item">
-        <label for="filtroFechaHasta">Fecha llegada hasta</label>
-        <p-calendar 
-          id="filtroFechaHasta"
-          [(ngModel)]="filtroFechaHasta"
-          (onSelect)="aplicarFiltros()"
-          (onClearClick)="aplicarFiltros()"
-          dateFormat="dd/mm/yy"
-          placeholder="Seleccionar fecha"
-          styleClass="w-full"
-          [showIcon]="true">
-        </p-calendar>
-      </div>
-
       <!-- Botón limpiar -->
       <div class="filtro-item filtro-acciones">
         <p-button 
@@ -229,14 +173,26 @@
             </ng-template>
           </td>
           <td>
-            <p-button 
-              label="Más Detalles"
-              icon="pi pi-info-circle"
-              severity="info"
-              size="small"
-              (click)="verDetalles(persona)"
-              class="detalles-button">
-            </p-button>
+            <div class="action-buttons">
+              <p-button 
+                label="Detalles"
+                icon="pi pi-info-circle"
+                severity="info"
+                size="small"
+                (click)="verDetalles(persona)"
+                class="detalles-button mr-2">
+              </p-button>
+              
+              <p-button 
+                *ngIf="authService.canEdit()"
+                label="Editar"
+                icon="pi pi-pencil"
+                severity="secondary"
+                size="small"
+                (click)="editarPersona(persona)"
+                class="editar-button">
+              </p-button>
+            </div>
           </td>
         </tr>
       </ng-template>
@@ -288,12 +244,8 @@
             <span>{{getSexoLabel(personaSeleccionada.sexo || '')}}</span>
           </div>
           <div class="info-item">
-            <label>Teléfono:</label>
-            <span>{{detallesCompletos?.telefono || 'No especificado'}}</span>
-          </div>
-          <div class="info-item">
-            <label>Email:</label>
-            <span>{{detallesCompletos?.email || 'No especificado'}}</span>
+            <label>Teléfono de Contacto:</label>
+            <span>{{personaSeleccionada.telefonoContacto || 'No especificado'}}</span>
           </div>
         </div>
       </p-panel>
@@ -309,10 +261,6 @@
             <label>Asentamiento/Colonia:</label>
             <span>{{personaSeleccionada.coloniaNombre}}</span>
           </div>
-          <div class="info-item">
-            <label>Dirección Anterior:</label>
-            <span>{{detallesCompletos?.direccionAnterior || 'No especificada'}}</span>
-          </div>
         </div>
       </p-panel>
 
@@ -320,12 +268,12 @@
       <p-panel header="Información del Albergue" [toggleable]="true" [collapsed]="false">
         <div class="info-grid">
           <div class="info-item">
-            <label>ID del Albergue:</label>
-            <span>{{personaSeleccionada.albergueId || 'Sin asignar'}}</span>
-          </div>
-          <div class="info-item">
             <label>Nombre del Albergue:</label>
             <span>{{personaSeleccionada.nombreAlbergue}}</span>
+          </div>
+          <div class="info-item">
+            <label>Municipio del Albergue:</label>
+            <span>{{personaSeleccionada.albergueMunicipioNombre}}</span>
           </div>
           <div class="info-item">
             <label>Fecha de Llegada:</label>
@@ -346,12 +294,8 @@
         *ngIf="tieneGrupoFamiliar(personaSeleccionada)">
         <div class="familia-info-detalle">
           <div class="info-item">
-            <label>ID del Grupo Familiar:</label>
-            <span>{{personaSeleccionada.grupoFamiliarId}}</span>
-          </div>
-          <div class="info-item">
             <label>Nombre del Grupo:</label>
-            <span>{{detallesCompletos?.grupoFamiliar?.nombre || 'Grupo Familiar ' + personaSeleccionada.grupoFamiliarId}}</span>
+            <span>{{detallesCompletos?.grupoFamiliar?.nombre || 'Grupo Familiar'}}</span>
           </div>
           <div class="info-item">
             <label>Es Cabeza de Familia:</label>
@@ -362,23 +306,41 @@
             <span>{{detallesCompletos?.grupoFamiliar?.cantidadMiembros || 'No especificado'}}</span>
           </div>
           
-          <!-- Lista de Familiares -->
+          <!-- Tabla de Miembros Familiares -->
           <div class="miembros-familia" *ngIf="miembrosFamilia && miembrosFamilia.length > 0">
             <label>Miembros del Grupo Familiar:</label>
-            <div class="lista-miembros">
-              <p-card *ngFor="let miembro of miembrosFamilia" class="miembro-card">
-                <div class="miembro-info">
-                  <strong>{{miembro.nombre}} {{miembro.apellidoPaterno}} {{miembro.apellidoMaterno}}</strong>
-                  <small>ID: {{miembro.codigoPersona}}</small>
-                  <p-tag 
-                    *ngIf="miembro.esCabezaFamilia"
-                    value="Cabeza de Familia"
-                    severity="warning"
-                    class="mt-2">
-                  </p-tag>
-                </div>
-              </p-card>
-            </div>
+            <p-table [value]="miembrosFamilia" [responsive]="true" styleClass="p-datatable-sm">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th>Nombre Completo</th>
+                  <th>Edad</th>
+                  <th>Sexo</th>
+                  <th>Parentesco</th>
+                  <th>Rol</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-miembro>
+                <tr>
+                  <td>{{miembro.nombre}} {{miembro.apellidoPaterno}} {{miembro.apellidoMaterno}}</td>
+                  <td>{{miembro.edad}} años</td>
+                  <td>{{getSexoLabel(miembro.sexo || '')}}</td>
+                  <td>{{miembro.parentesco || 'No especificado'}}</td>
+                  <td>
+                    <p-tag 
+                      *ngIf="miembro.esCabezaFamilia"
+                      value="Cabeza de Familia"
+                      severity="success">
+                    </p-tag>
+                    <span *ngIf="!miembro.esCabezaFamilia">Miembro</span>
+                  </td>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td colspan="5">No se encontraron miembros familiares.</td>
+                </tr>
+              </ng-template>
+            </p-table>
           </div>
         </div>
       </p-panel>
@@ -427,6 +389,149 @@
         icon="pi pi-times" 
         (click)="cerrarDetalles()"
         severity="secondary">
+      </p-button>
+    </ng-template>
+  </p-dialog>
+
+  <!-- Modal de Edición de Persona -->
+  <p-dialog 
+    header="Editar Persona"
+    [(visible)]="mostrarModalEdicion"
+    [modal]="true"
+    [style]="{ width: '50vw' }"
+    [closable]="false">
+    
+    <form [formGroup]="edicionForm" (ngSubmit)="guardarEdicion()">
+      <div class="grid">
+        <!-- Nombre -->
+        <div class="col-12 md:col-6">
+          <label for="nombre">Nombre *</label>
+          <input 
+            id="nombre"
+            type="text" 
+            pInputText 
+            formControlName="nombre"
+            class="w-full" 
+            [class.ng-invalid]="edicionForm.get('nombre')?.invalid && edicionForm.get('nombre')?.touched" />
+          <small 
+            class="p-error" 
+            *ngIf="edicionForm.get('nombre')?.invalid && edicionForm.get('nombre')?.touched">
+            El nombre es requerido
+          </small>
+        </div>
+
+        <!-- Apellido Paterno -->
+        <div class="col-12 md:col-6">
+          <label for="apellidoPaterno">Apellido Paterno *</label>
+          <input 
+            id="apellidoPaterno"
+            type="text" 
+            pInputText 
+            formControlName="apellidoPaterno"
+            class="w-full" 
+            [class.ng-invalid]="edicionForm.get('apellidoPaterno')?.invalid && edicionForm.get('apellidoPaterno')?.touched" />
+          <small 
+            class="p-error" 
+            *ngIf="edicionForm.get('apellidoPaterno')?.invalid && edicionForm.get('apellidoPaterno')?.touched">
+            El apellido paterno es requerido
+          </small>
+        </div>
+
+        <!-- Apellido Materno -->
+        <div class="col-12 md:col-6">
+          <label for="apellidoMaterno">Apellido Materno</label>
+          <input 
+            id="apellidoMaterno"
+            type="text" 
+            pInputText 
+            formControlName="apellidoMaterno"
+            class="w-full" />
+        </div>
+
+        <!-- Edad -->
+        <div class="col-12 md:col-6">
+          <label for="edad">Edad *</label>
+          <input 
+            id="edad"
+            type="number" 
+            pInputText 
+            formControlName="edad"
+            class="w-full" 
+            min="0" 
+            max="120"
+            [class.ng-invalid]="edicionForm.get('edad')?.invalid && edicionForm.get('edad')?.touched" />
+          <small 
+            class="p-error" 
+            *ngIf="edicionForm.get('edad')?.invalid && edicionForm.get('edad')?.touched">
+            La edad es requerida (0-120)
+          </small>
+        </div>
+
+        <!-- Sexo -->
+        <div class="col-12 md:col-6">
+          <label for="sexo">Sexo *</label>
+          <p-dropdown 
+            id="sexo"
+            formControlName="sexo"
+            [options]="sexoOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Seleccionar sexo"
+            class="w-full"
+            [class.ng-invalid]="edicionForm.get('sexo')?.invalid && edicionForm.get('sexo')?.touched">
+          </p-dropdown>
+          <small 
+            class="p-error" 
+            *ngIf="edicionForm.get('sexo')?.invalid && edicionForm.get('sexo')?.touched">
+            El sexo es requerido
+          </small>
+        </div>
+
+        <!-- Colonia -->
+        <div class="col-12 md:col-6">
+          <label for="coloniaNombre">Colonia/Asentamiento *</label>
+          <input 
+            id="coloniaNombre"
+            type="text" 
+            pInputText 
+            formControlName="coloniaNombre"
+            class="w-full" 
+            [class.ng-invalid]="edicionForm.get('coloniaNombre')?.invalid && edicionForm.get('coloniaNombre')?.touched" />
+          <small 
+            class="p-error" 
+            *ngIf="edicionForm.get('coloniaNombre')?.invalid && edicionForm.get('coloniaNombre')?.touched">
+            La colonia es requerida
+          </small>
+        </div>
+
+        <!-- Observaciones -->
+        <div class="col-12">
+          <label for="observaciones">Observaciones</label>
+          <textarea 
+            id="observaciones"
+            pInputTextarea 
+            formControlName="observaciones"
+            class="w-full" 
+            rows="3">
+          </textarea>
+        </div>
+      </div>
+    </form>
+
+    <ng-template pTemplate="footer">
+      <p-button 
+        label="Cancelar" 
+        icon="pi pi-times" 
+        (click)="cancelarEdicion()"
+        severity="secondary"
+        class="mr-2">
+      </p-button>
+      <p-button 
+        label="Guardar" 
+        icon="pi pi-check" 
+        (click)="guardarEdicion()"
+        severity="primary"
+        [disabled]="!edicionForm.valid">
       </p-button>
     </ng-template>
   </p-dialog>

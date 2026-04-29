@@ -52,6 +52,33 @@ public class ActualizarCapacidadDto
     public int NuevaCapacidad { get; set; }
 }
 
+public class UpdateAlbergueDto
+{
+    public string Nombre { get; set; } = string.Empty;
+    public string Direccion { get; set; } = string.Empty;
+    public int MunicipioId { get; set; }
+    public string? Asentamiento { get; set; }
+    public int CapacidadMaxima { get; set; }
+    public string? Servicios { get; set; }
+    public string? ContactoTelefono { get; set; }
+    public string? ContactoEmail { get; set; }
+    public string Responsable { get; set; } = string.Empty;
+    public string Estado { get; set; } = "Activo";
+    public decimal? Latitud { get; set; }
+    public decimal? Longitud { get; set; }
+}
+
+public class EstadisticasAlberguesDto
+{
+    public int Total { get; set; }
+    public int Activos { get; set; }
+    public int Llenos { get; set; }
+    public int Inactivos { get; set; }
+    public double OcupacionGeneral { get; set; }
+    public int CapacidadTotal { get; set; }
+    public int PersonasAlojadas { get; set; }
+}
+
 public class PersonaCondicionMedicaDto
 {
     public int Id { get; set; }

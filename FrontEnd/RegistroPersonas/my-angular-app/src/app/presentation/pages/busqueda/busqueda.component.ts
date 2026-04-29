@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 // PrimeNG Components
 import { CardModule } from 'primeng/card';
@@ -14,10 +14,12 @@ import { CalendarModule } from 'primeng/calendar';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { DialogModule } from 'primeng/dialog';
 import { PanelModule } from 'primeng/panel';
+import { InputTextareaModule } from 'primeng/inputtextarea';
 
 import { Persona } from '../../../domain/entities/persona.model';
 import { PersonasService } from '../../../core/services/personas.service';
 import { MunicipiosService } from '../../../core/services/municipios.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { BreadcrumbComponent, BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
 
 @Component({
@@ -26,6 +28,7 @@ import { BreadcrumbComponent, BreadcrumbItem } from '../../../shared/components/
   imports: [
     CommonModule,
     FormsModule,
+    ReactiveFormsModule,
     CardModule,
     TableModule,
     InputTextModule,
@@ -37,6 +40,7 @@ import { BreadcrumbComponent, BreadcrumbItem } from '../../../shared/components/
     MultiSelectModule,
     DialogModule,
     PanelModule,
+    InputTextareaModule,
     BreadcrumbComponent
   ],
   templateUrl: './busqueda.component.html',
@@ -62,10 +66,6 @@ export class BusquedaComponent implements OnInit {
   filtroTexto = '';
   filtroMunicipio = '';
   filtroSexo = '';
-  filtroEdadMin = null;
-  filtroEdadMax = null;
-  filtroFechaDesde: Date | null = null;
-  filtroFechaHasta: Date | null = null;
 
   // Opciones para filtros
   municipiosOptions = [
@@ -98,10 +98,31 @@ export class BusquedaComponent implements OnInit {
     { field: 'esCabezaFamilia', header: 'Cabeza Familia' }
   ];
 
+  // Modal de edición
+  mostrarModalEdicion = false;
+  personaEnEdicion: Persona | null = null;
+  edicionForm!: FormGroup;
+
   constructor(
     private personasService: PersonasService,
-    private municipiosService: MunicipiosService
-  ) {}
+    private municipiosService: MunicipiosService,
+    public authService: AuthService,
+    private fb: FormBuilder
+  ) {
+    this.crearFormularioEdicion();
+  }
+
+  private crearFormularioEdicion() {
+    this.edicionForm = this.fb.group({
+      nombre: ['', Validators.required],
+      apellidoPaterno: ['', Validators.required],
+      apellidoMaterno: [''],
+      edad: [0, [Validators.required, Validators.min(0), Validators.max(120)]],
+      sexo: ['', Validators.required],
+      coloniaNombre: ['', Validators.required],
+      observaciones: ['']
+    });
+  }
 
   ngOnInit() {
     this.loadPersonas();
@@ -249,16 +270,7 @@ export class BusquedaComponent implements OnInit {
       const cumpleFiltroSexo = this.filtroSexo === '' || 
         persona.sexo === this.filtroSexo;
 
-      // Filtro por edad
-      const cumpleFiltroEdad = (this.filtroEdadMin === null || persona.edad >= this.filtroEdadMin) &&
-        (this.filtroEdadMax === null || persona.edad <= this.filtroEdadMax);
-
-      // Filtro por fecha
-      const fechaLlegada = new Date(persona.fechaHoraLlegada);
-      const cumpleFiltroFecha = (this.filtroFechaDesde === null || fechaLlegada >= this.filtroFechaDesde) &&
-        (this.filtroFechaHasta === null || fechaLlegada <= this.filtroFechaHasta);
-
-      return cumpleFiltroTexto && cumpleFiltroMunicipio && cumpleFiltroSexo && cumpleFiltroEdad && cumpleFiltroFecha;
+      return cumpleFiltroTexto && cumpleFiltroMunicipio && cumpleFiltroSexo;
     });
   }
 
@@ -271,16 +283,59 @@ export class BusquedaComponent implements OnInit {
     this.filtroTexto = '';
     this.filtroMunicipio = '';
     this.filtroSexo = '';
-    this.filtroEdadMin = null;
-    this.filtroEdadMax = null;
-    this.filtroFechaDesde = null;
-    this.filtroFechaHasta = null;
     this.aplicarFiltros();
   }
 
   // Método público para refrescar la lista de personas
   refrescarPersonas() {
     this.loadPersonas();
+  }
+
+  // Método para editar persona (solo disponible para admin/albergue)
+  editarPersona(persona: Persona) {
+    if (this.authService.canEdit()) {
+      this.personaEnEdicion = persona;
+      this.edicionForm.patchValue({
+        nombre: persona.nombre,
+        apellidoPaterno: persona.apellidoPaterno,
+        apellidoMaterno: persona.apellidoMaterno,
+        edad: persona.edad,
+        sexo: persona.sexo,
+        coloniaNombre: persona.coloniaNombre,
+        observaciones: ''
+      });
+      this.mostrarModalEdicion = true;
+    }
+  }
+
+  // Guardar cambios de edición
+  guardarEdicion() {
+    if (this.edicionForm.valid && this.personaEnEdicion) {
+      const formValues = this.edicionForm.value;
+      
+      const personaId = parseInt(this.personaEnEdicion.id!, 10);
+      this.personasService.updatePersona(personaId, formValues).subscribe({
+        next: (personaActualizada) => {
+          if (personaActualizada) {
+            // Refrescar la lista completa
+            this.loadPersonas();
+            this.mostrarModalEdicion = false;
+            this.personaEnEdicion = null;
+          }
+        },
+        error: (error) => {
+          console.error('Error al actualizar persona:', error);
+          alert('Error al guardar los cambios. Intente nuevamente.');
+        }
+      });
+    }
+  }
+
+  // Cancelar edición
+  cancelarEdicion() {
+    this.mostrarModalEdicion = false;
+    this.personaEnEdicion = null;
+    this.edicionForm.reset();
   }
 
   getSexoLabel(sexo: string): string {

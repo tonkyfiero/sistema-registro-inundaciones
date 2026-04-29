@@ -10,6 +10,7 @@
     </div>
     <div class="header-actions">
       <p-button 
+        *ngIf="authService.canEdit()"
         label="Nuevo Albergue" 
         icon="pi pi-plus" 
         (click)="openNewDialog()">
@@ -68,6 +69,32 @@
     </p-card>
   </div>
 
+  <!-- Filtros -->
+  <div class="filtros-container">
+    <p-card>
+      <ng-template pTemplate="header">
+        <h4><i class="pi pi-filter"></i> Filtros</h4>
+      </ng-template>
+      
+      <div class="filter-row">
+        <div class="filter-field">
+          <label for="municipio-filter">Municipio:</label>
+          <p-dropdown 
+            id="municipio-filter"
+            [options]="municipioFilterOptions" 
+            [(ngModel)]="selectedMunicipioFilter"
+            (onChange)="onMunicipioFilterChange()"
+            optionLabel="label" 
+            optionValue="value"
+            placeholder="Todos los municipios"
+            [showClear]="true"
+            styleClass="w-full">
+          </p-dropdown>
+        </div>
+      </div>
+    </p-card>
+  </div>
+
   <!-- Tabla de Albergues -->
   <p-card>
     <ng-template pTemplate="header">
@@ -75,7 +102,7 @@
     </ng-template>
 
     <p-table 
-      [value]="albergues" 
+      [value]="alberguesFiltrados" 
       [paginator]="true" 
       [rows]="10"
       [showCurrentPageReport]="true"
@@ -174,16 +201,11 @@
           <td>
             <div class="action-buttons">
               <p-button 
+                *ngIf="authService.canEdit()"
                 icon="pi pi-pencil" 
-                styleClass="p-button-text p-button-sm"
+                styleClass="p-button-danger p-button-sm"
                 (click)="openEditDialog(albergue)"
-                pTooltip="Editar">
-              </p-button>
-              <p-button 
-                icon="pi pi-trash" 
-                styleClass="p-button-text p-button-danger p-button-sm"
-                (click)="deleteAlbergue(albergue)"
-                pTooltip="Eliminar">
+                pTooltip="Editar Albergue">
               </p-button>
             </div>
           </td>

@@ -72,17 +72,18 @@
           <label for="edad" class="block text-900 font-medium mb-2">
             Edad <span class="text-red-500">*</span>
           </label>
-          <p-inputNumber
-            id="edad"
+          <input 
+            pInputText 
+            id="edad" 
             formControlName="edad"
             placeholder="Edad"
-            styleClass="w-full"
-            [min]="0"
-            [max]="120"
-            [showButtons]="true"
+            type="number"
+            min="0"
+            max="120"
+            class="w-full"
             [class.ng-invalid]="hasFieldError('datosPersonales.edad')"
-            [class.ng-dirty]="hasFieldError('datosPersonales.edad')">
-          </p-inputNumber>
+            [class.ng-dirty]="hasFieldError('datosPersonales.edad')"
+            style="appearance: textfield; -moz-appearance: textfield; -webkit-appearance: none;" />
           <small 
             *ngIf="hasFieldError('datosPersonales.edad')" 
             class="p-error block mt-1">
@@ -107,6 +108,25 @@
             *ngIf="hasFieldError('datosPersonales.sexo')" 
             class="p-error block mt-1">
             {{ getFieldError('datosPersonales.sexo') }}
+          </small>
+        </div>
+
+        <div class="field col-12 md:col-6">
+          <label for="telefonoContacto" class="block text-900 font-medium mb-2">
+            Teléfono de Contacto
+          </label>
+          <input 
+            pInputText 
+            id="telefonoContacto" 
+            formControlName="telefonoContacto"
+            placeholder="Ej: 782-123-4567"
+            class="w-full"
+            [class.ng-invalid]="hasFieldError('datosPersonales.telefonoContacto')"
+            [class.ng-dirty]="hasFieldError('datosPersonales.telefonoContacto')" />
+          <small 
+            *ngIf="hasFieldError('datosPersonales.telefonoContacto')" 
+            class="p-error block mt-1">
+            {{ getFieldError('datosPersonales.telefonoContacto') }}
           </small>
         </div>
       </div>
@@ -208,20 +228,7 @@
           </small>
         </div>
 
-        <div class="field col-12 md:col-6">
-          <label for="fechaSalida" class="block text-900 font-medium mb-2">
-            Fecha y Hora de Salida (opcional)
-          </label>
-          <p-calendar
-            id="fechaSalida"
-            formControlName="fechaHoraSalida"
-            styleClass="w-full"
-            [showTime]="true"
-            [showSeconds]="false"
-            placeholder="dd/mm/aaaa hh:mm"
-            dateFormat="dd/mm/yy">
-          </p-calendar>
-        </div>
+
       </div>
     </p-card>
 

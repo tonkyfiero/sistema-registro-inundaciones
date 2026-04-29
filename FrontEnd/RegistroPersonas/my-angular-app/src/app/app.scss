@@ -1,0 +1,57 @@
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1;
+  padding-top: 0;
+}
+
+/* Global styles for consistent spacing */
+:host ::ng-deep {
+  .p-component {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  .page-container {
+    padding: 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .page-header {
+    margin-bottom: 2rem;
+  }
+
+  .page-title {
+    color: var(--primary-color);
+    font-size: 2rem;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .page-subtitle {
+    color: var(--text-color-secondary);
+    font-size: 1rem;
+    margin-top: 0.5rem;
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .main-content {
+    padding-top: 0;
+  }
+
+  :host ::ng-deep {
+    .page-container {
+      padding: 0.5rem;
+    }
+
+    .page-title {
+      font-size: 1.5rem;
+    }
+  }
+}

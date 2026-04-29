@@ -9,6 +9,14 @@ Backend/NetCore8API/bin/
 Backend/NetCore8API/obj/
 Backend/NetCore8API/out/
 
+Backend/HashGenerator/bin/
+Backend/HashGenerator/obj/
+Backend/HashGenerator/out/
+
+Backend/NetCore8API.Tests/bin/
+Backend/NetCore8API.Tests/obj/
+Backend/NetCore8API.Tests/out/
+
 # User-specific files
 *.rsuser
 *.suo

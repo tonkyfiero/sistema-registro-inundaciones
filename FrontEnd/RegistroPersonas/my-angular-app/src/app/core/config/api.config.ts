@@ -1,11 +1,22 @@
+import { environment } from '../../../environments/environment';
+
 export const API_CONFIG = {
-  baseUrl: 'http://localhost:5120/api',
+  baseUrl: environment.apiUrl,
   endpoints: {
     municipios: '/Municipios',
     albergues: '/Albergues', 
     personas: '/Personas',
-    gruposFamiliares: '/GruposFamiliares'
+    gruposFamiliares: '/GruposFamiliares',
+    auth: '/Auth'
   }
+} as const;
+
+// Configuración adicional basada en el entorno
+export const APP_CONFIG = {
+  appName: environment.appName,
+  version: environment.version,
+  enableLogging: environment.enableLogging,
+  production: environment.production
 } as const;
 
 export const API_URLS = {

@@ -84,18 +84,22 @@ public interface IAlbergueService
     Task<IEnumerable<AlbergueDto>> GetAlberguesPorMunicipioAsync(int municipioId);
     Task<AlbergueDto?> GetAlberguePorIdAsync(int id);
     Task<AlbergueDto> CrearAlbergueAsync(CreateAlbergueDto createDto);
+    Task<AlbergueDto?> ActualizarAlbergueAsync(int id, UpdateAlbergueDto updateDto);
     Task<bool> ActualizarCapacidadAsync(int id, int nuevaCapacidad);
     Task<bool> EliminarAlbergueAsync(int id);
+    Task<EstadisticasAlberguesDto> GetEstadisticasAsync();
 }
 
 public class AlbergueService : IAlbergueService
 {
     private readonly IAlbergueRepository _albergueRepository;
+    private readonly IPersonaRepository _personaRepository;
     private readonly IMapper _mapper;
 
-    public AlbergueService(IAlbergueRepository albergueRepository, IMapper mapper)
+    public AlbergueService(IAlbergueRepository albergueRepository, IPersonaRepository personaRepository, IMapper mapper)
     {
         _albergueRepository = albergueRepository;
+        _personaRepository = personaRepository;
         _mapper = mapper;
     }
 
@@ -130,6 +134,20 @@ public class AlbergueService : IAlbergueService
         return _mapper.Map<AlbergueDto>(albergueCreado);
     }
 
+    public async Task<AlbergueDto?> ActualizarAlbergueAsync(int id, UpdateAlbergueDto updateDto)
+    {
+        var albergueExistente = await _albergueRepository.GetByIdAsync(id);
+        if (albergueExistente == null)
+            return null;
+
+        // Mapear los datos actualizados al albergue existente
+        _mapper.Map(updateDto, albergueExistente);
+        albergueExistente.UpdatedAt = DateTime.UtcNow;
+
+        var albergueActualizado = await _albergueRepository.UpdateAsync(albergueExistente);
+        return _mapper.Map<AlbergueDto>(albergueActualizado);
+    }
+
     public async Task<bool> ActualizarCapacidadAsync(int id, int nuevaCapacidad)
     {
         return await _albergueRepository.ActualizarCapacidadAsync(id, nuevaCapacidad);
@@ -138,6 +156,47 @@ public class AlbergueService : IAlbergueService
     public async Task<bool> EliminarAlbergueAsync(int id)
     {
         return await _albergueRepository.DeleteAsync(id);
+    }
+
+    public async Task<EstadisticasAlberguesDto> GetEstadisticasAsync()
+    {
+        var albergues = await _albergueRepository.GetAllAsync();
+        
+        var total = albergues.Count();
+        var activos = albergues.Count(a => a.Estado == "Activo");
+        var llenos = albergues.Count(a => a.Estado == "Lleno");
+        var inactivos = albergues.Count(a => a.Estado == "Inactivo");
+        
+        var capacidadTotal = albergues.Sum(a => a.CapacidadMaxima);
+        
+        // Calcular la ocupación real basándose en las personas asignadas a los albergues
+        var personasAlojadas = 0;
+        foreach (var albergue in albergues)
+        {
+            var personasEnAlbergue = await _personaRepository.GetPersonasPaginadasAsync(1, int.MaxValue, null, albergue.Id);
+            var cantidadPersonas = personasEnAlbergue.Count();
+            personasAlojadas += cantidadPersonas;
+            
+            // Actualizar la capacidad actual del albergue
+            if (albergue.CapacidadActual != cantidadPersonas)
+            {
+                albergue.CapacidadActual = cantidadPersonas;
+                await _albergueRepository.UpdateAsync(albergue);
+            }
+        }
+        
+        var ocupacionGeneral = capacidadTotal > 0 ? (double)personasAlojadas / capacidadTotal * 100 : 0;
+
+        return new EstadisticasAlberguesDto
+        {
+            Total = total,
+            Activos = activos,
+            Llenos = llenos,
+            Inactivos = inactivos,
+            OcupacionGeneral = Math.Round(ocupacionGeneral, 1),
+            CapacidadTotal = capacidadTotal,
+            PersonasAlojadas = personasAlojadas
+        };
     }
 }
 

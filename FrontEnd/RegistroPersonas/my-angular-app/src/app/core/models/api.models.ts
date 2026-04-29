@@ -69,6 +69,21 @@ export interface CreateAlbergueDto {
   longitud?: number;
 }
 
+export interface UpdateAlbergueDto {
+  nombre: string;
+  direccion: string;
+  municipioId: number;
+  asentamiento?: string;
+  capacidadMaxima: number;
+  servicios?: string;
+  contactoTelefono?: string;
+  contactoEmail?: string;
+  responsable: string;
+  estado: string;
+  latitud?: number;
+  longitud?: number;
+}
+
 export interface PersonaDto {
   id: number;
   codigoPersona?: string;
@@ -139,6 +154,16 @@ export interface PersonaCondicionMedicaDto {
 
 export interface ActualizarCapacidadDto {
   nuevaCapacidad: number;
+}
+
+export interface EstadisticasAlberguesDto {
+  total: number;
+  activos: number;
+  llenos: number;
+  inactivos: number;
+  ocupacionGeneral: number;
+  capacidadTotal: number;
+  personasAlojadas: number;
 }
 
 // Parámetros de consulta

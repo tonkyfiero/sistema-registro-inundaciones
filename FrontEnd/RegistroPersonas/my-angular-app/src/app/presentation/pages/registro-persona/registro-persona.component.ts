@@ -127,7 +127,8 @@ export class RegistroPersonaComponent implements OnInit {
         apellidoPaterno: ['', [Validators.required, Validators.minLength(2)]],
         apellidoMaterno: ['', Validators.minLength(2)],
         edad: ['', [Validators.required, Validators.min(0), Validators.max(120)]],
-        sexo: ['', Validators.required]
+        sexo: ['', Validators.required],
+        telefonoContacto: ['', [Validators.pattern(/^[\d\-\s\+\(\)\.]+$/)]]
       }),
 
       // Ubicación
@@ -139,8 +140,7 @@ export class RegistroPersonaComponent implements OnInit {
 
       // Fechas
       fechas: this.fb.group({
-        fechaHoraLlegada: [new Date(), Validators.required],
-        fechaHoraSalida: ['']
+        fechaHoraLlegada: [new Date(), Validators.required]
       }),
 
       // Información de Ingreso
@@ -319,7 +319,16 @@ export class RegistroPersonaComponent implements OnInit {
     this.isLoading = true;
     
     const formData = this.registroForm.value;
-    console.log('Datos a guardar:', formData);
+    
+    console.log('=== DEBUG GUARDAR REGISTRO ===');
+    console.log('Formulario válido:', this.registroForm.valid);
+    console.log('Datos completos del formulario:', formData);
+    console.log('Estado del formulario:', this.registroForm.status);
+    console.log('Errores del formulario:', this.registroForm.errors);
+    console.log('Estado de informacionIngreso:', this.registroForm.get('informacionIngreso')?.value);
+    console.log('Estado de informacionIngreso valid:', this.registroForm.get('informacionIngreso')?.valid);
+    console.log('Errores de informacionIngreso:', this.registroForm.get('informacionIngreso')?.errors);
+    console.log('===============================');
 
     // Verificar si hay familiares registrados
     const tieneFamiliares = formData.familiares && formData.familiares.length > 0;
@@ -346,6 +355,15 @@ export class RegistroPersonaComponent implements OnInit {
       return;
     }
 
+    // DEBUG: Verificar los datos del albergue
+    console.log('=== DEBUG ALBERGUE ===');
+    console.log('formData.informacionIngreso:', formData.informacionIngreso);
+    console.log('albergueId raw:', formData.informacionIngreso?.albergueId);
+    
+    const albergueId = formData.informacionIngreso?.albergueId ? parseInt(formData.informacionIngreso.albergueId, 10) : undefined;
+    console.log('albergueId parseado:', albergueId);
+    console.log('======================');
+
     // Preparar los datos para el backend
     const createPersonaRequest: CreatePersonaRequest = {
       numeroIdentificacion: this.generateTempId(), // Generar ID temporal si no hay documento
@@ -354,17 +372,21 @@ export class RegistroPersonaComponent implements OnInit {
       segundoApellido: formData.datosPersonales.apellidoMaterno || '',
       fechaNacimiento: this.calculateBirthDate(formData.datosPersonales.edad),
       genero: this.mapSexoToGenero(formData.datosPersonales.sexo),
-      telefono: formData.contacto?.telefono || '',
-      email: formData.contacto?.email || '',
+      telefono: formData.datosPersonales?.telefonoContacto || '',
+      email: '',
       direccionAnterior: formData.ubicacion?.direccionAnterior || '',
       municipioOrigenId: municipioId,
       asentamientoOrigen: formData.ubicacion.coloniaNombre || 'Centro',
       tieneCondicionesMedicas: formData.tieneCondicionesMedicas || false,
       condicionesMedicas: formData.tieneCondicionesMedicas ? this.mapCondicionesMedicas(formData.condicionesMedicas) : [],
       grupoFamiliarId: undefined,
-      albergueId: formData.informacionIngreso?.albergueId ? parseInt(formData.informacionIngreso.albergueId, 10) : undefined,
+      albergueId: albergueId,
       observaciones: `Registrado el ${new Date().toLocaleDateString()}. Es cabeza de familia: ${formData.esCabezaFamilia ? 'Sí' : 'No'}`
     };
+
+    console.log('=== DEBUG REQUEST ===');
+    console.log('CreatePersonaRequest completo:', createPersonaRequest);
+    console.log('=====================');
 
     // Llamar al servicio del backend
     this.personasService.createPersona(createPersonaRequest).subscribe({
@@ -409,6 +431,15 @@ export class RegistroPersonaComponent implements OnInit {
       return;
     }
 
+    // DEBUG: Verificar los datos del albergue para grupo familiar
+    console.log('=== DEBUG GRUPO FAMILIAR - ALBERGUE ===');
+    console.log('formData.informacionIngreso:', formData.informacionIngreso);
+    console.log('albergueId raw:', formData.informacionIngreso?.albergueId);
+    
+    const albergueIdGrupo = formData.informacionIngreso?.albergueId ? parseInt(formData.informacionIngreso.albergueId, 10) : null;
+    console.log('albergueId parseado (grupo):', albergueIdGrupo);
+    console.log('=====================================');
+
     // Preparar datos del representante (cabeza de familia) - usando campos exactos del CreatePersonaDto
     const representante = {
       nombre: formData.datosPersonales.nombre,
@@ -422,7 +453,7 @@ export class RegistroPersonaComponent implements OnInit {
       esCabezaFamilia: true,
       grupoFamiliarId: null,
       parentesco: null,
-      albergueId: formData.informacionIngreso?.albergueId ? parseInt(formData.informacionIngreso.albergueId, 10) : null,
+      albergueId: albergueIdGrupo,
       observaciones: `Cabeza de familia - Registrado el ${new Date().toLocaleDateString()}`,
       documentoIdentidad: this.generateTempId(),
       telefonoContacto: formData.contacto?.telefono || ''
@@ -441,11 +472,20 @@ export class RegistroPersonaComponent implements OnInit {
       esCabezaFamilia: false,
       grupoFamiliarId: null,
       parentesco: familiar.parentesco,
-      albergueId: formData.informacionIngreso?.albergueId ? parseInt(formData.informacionIngreso.albergueId, 10) : null,
+      albergueId: albergueIdGrupo,
       observaciones: `Familiar - Parentesco: ${familiar.parentesco} - Registrado el ${new Date().toLocaleDateString()}`,
       documentoIdentidad: this.generateTempId(),
       telefonoContacto: ''
     }));
+
+    console.log('=== DEBUG REPRESENTANTE ===');
+    console.log('Representante:', representante);
+    console.log('AlbergueId del representante:', representante.albergueId);
+    console.log('===========================');
+
+    console.log('=== DEBUG FAMILIARES ===');
+    console.log('Familiares:', miembrosFamiliares);
+    console.log('========================');
 
     // Preparar request para grupo familiar
     const createGrupoFamiliarRequest: CreateGrupoFamiliarRequest = {
@@ -554,6 +594,7 @@ export class RegistroPersonaComponent implements OnInit {
       if (field.errors['minlength']) return `Mínimo ${field.errors['minlength'].requiredLength} caracteres`;
       if (field.errors['min']) return `Valor mínimo: ${field.errors['min'].min}`;
       if (field.errors['max']) return `Valor máximo: ${field.errors['max'].max}`;
+      if (field.errors['pattern']) return 'Formato de teléfono no válido (use números, guiones, espacios, paréntesis)';
     }
     return '';
   }

@@ -154,9 +154,29 @@ export class PersonasService {
       telefonoContacto: request.telefono
     };
 
+    console.log('=== DEBUG SERVICE ===');
+    console.log('Request original:', request);
+    console.log('DTO a enviar:', createDto);
+    console.log('AlbergueId en DTO:', createDto.albergueId);
+    console.log('URL:', API_URLS.PERSONAS_BASE);
+    console.log('====================');
+
+    console.log('=== PETICION HTTP ===');
+    console.log('Enviando POST a:', API_URLS.PERSONAS_BASE);
+    console.log('Body de la petición (createDto):', JSON.stringify(createDto, null, 2));
+    console.log('Tipo de createDto:', typeof createDto);
+    console.log('Propiedades de createDto:', Object.keys(createDto));
+    console.log('====================');
+
     return this.http.post<PersonaDto>(API_URLS.PERSONAS_BASE, createDto)
       .pipe(
-        map(dto => this.mapPersonaDtoToPersona(dto)),
+        map(dto => {
+          console.log('=== RESPUESTA HTTP ===');
+          console.log('Respuesta del backend:', dto);
+          console.log('AlbergueActualId en respuesta:', dto.albergueActualId);
+          console.log('======================');
+          return this.mapPersonaDtoToPersona(dto);
+        }),
         catchError((error) => {
           console.error('Error creating persona via API:', error);
           throw error;

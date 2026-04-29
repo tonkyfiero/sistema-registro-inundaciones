@@ -5,6 +5,7 @@ using NetCore8API.Domain.Entities;
 using NetCore8API.Infrastructure.Repositories;
 using NetCore8API.Application.Services;
 using NetCore8API.Application.Mappings;
+using NetCore8API.Middleware;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,7 +21,11 @@ if (builder.Environment.IsDevelopment())
 // Add services to the container.
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    // Try to get connection string from environment variable first, then fallback to configuration
+    var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING") 
+        ?? builder.Configuration.GetConnectionString("DefaultConnection");
+    
+    options.UseSqlServer(connectionString);
     
     // Enable detailed logging in development
     if (builder.Environment.IsDevelopment())
@@ -79,12 +84,27 @@ builder.Services.AddSwaggerGen(c =>
 // Configure CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAngular", policy =>
+    options.AddPolicy("AllowFrontendDomains", policy =>
     {
-        policy.WithOrigins("http://localhost:4200", "http://localhost:3000")
+        policy.WithOrigins(
+                "http://localhost:4200", 
+                "http://localhost:3000",
+                "https://localhost:4200", 
+                "https://localhost:3000",
+                "http://registro-personas-albergue.runasp.net",
+                "https://registro-personas-albergue.runasp.net"
+              )
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
+    });
+    
+    // Política alternativa para desarrollo amplio si es necesario
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
     });
 });
 
@@ -104,9 +124,22 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+ app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Registro Inundaciones API v1");
+        c.RoutePrefix = "swagger";
+        c.DisplayRequestDuration();
+        c.EnableTryItOutByDefault();
+    });
+
 app.UseHttpsRedirection();
 
-app.UseCors("AllowAngular");
+// IMPORTANTE: CORS debe ir antes de UseAuthorization
+app.UseCors("AllowFrontendDomains");
+
+// Agregar middleware de API Key para autenticación
+app.UseMiddleware<ApiKeyMiddleware>();
 
 app.UseAuthorization();
 

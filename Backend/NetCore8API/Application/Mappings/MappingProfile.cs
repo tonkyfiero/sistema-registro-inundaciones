@@ -27,6 +27,7 @@ public class MappingProfile : Profile
         CreateMap<Albergue, AlbergueDto>()
             .ForMember(dest => dest.MunicipioNombre, opt => opt.MapFrom(src => src.Municipio.Nombre));
         CreateMap<CreateAlbergueDto, Albergue>();
+        CreateMap<UpdateAlbergueDto, Albergue>();
 
         // Mapeos de Persona
         CreateMap<Persona, PersonaDto>()
@@ -35,7 +36,8 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.AlbergueMunicipioNombre, opt => opt.MapFrom(src => src.AlbergueActual != null && src.AlbergueActual.Municipio != null ? src.AlbergueActual.Municipio.Nombre : null));
         CreateMap<CreatePersonaDto, Persona>()
             .ForMember(dest => dest.AlbergueActualId, opt => opt.MapFrom(src => src.AlbergueId));
-        CreateMap<CrearPersonaDto, Persona>();
+        CreateMap<CrearPersonaDto, Persona>()
+            .ForMember(dest => dest.AlbergueActualId, opt => opt.MapFrom(src => src.AlbergueId));
         CreateMap<UpdatePersonaDto, Persona>();
         CreateMap<ActualizarPersonaDto, Persona>();
 

@@ -147,7 +147,7 @@ public class AlberguesController : ControllerBase
     /// Actualiza un albergue completo
     /// </summary>
     [HttpPut("{id}")]
-    public async Task<ActionResult<AlbergueDto>> ActualizarAlbergue(int id, [FromBody] CreateAlbergueDto updateDto)
+    public async Task<ActionResult<AlbergueDto>> ActualizarAlbergue(int id, [FromBody] UpdateAlbergueDto updateDto)
     {
         try
         {
@@ -156,16 +156,11 @@ public class AlberguesController : ControllerBase
                 return BadRequest(ModelState);
             }
 
-            // Verificar que el albergue existe
-            var albergueExistente = await _albergueService.GetAlberguePorIdAsync(id);
-            if (albergueExistente == null)
+            var albergueActualizado = await _albergueService.ActualizarAlbergueAsync(id, updateDto);
+            if (albergueActualizado == null)
             {
                 return NotFound($"Albergue con ID {id} no encontrado");
             }
-
-            // Por ahora usamos CrearAlbergueAsync con un mapeo manual
-            // En una implementación más completa, se crearía un UpdateAlbergueAsync
-            var albergueActualizado = await _albergueService.CrearAlbergueAsync(updateDto);
             
             return Ok(albergueActualizado);
         }
@@ -190,6 +185,23 @@ public class AlberguesController : ControllerBase
             }
 
             return Ok(new { mensaje = "Albergue eliminado exitosamente" });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Error interno del servidor: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Obtiene estadísticas generales de albergues
+    /// </summary>
+    [HttpGet("estadisticas")]
+    public async Task<ActionResult<EstadisticasAlberguesDto>> GetEstadisticas()
+    {
+        try
+        {
+            var estadisticas = await _albergueService.GetEstadisticasAsync();
+            return Ok(estadisticas);
         }
         catch (Exception ex)
         {

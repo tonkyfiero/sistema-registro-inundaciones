@@ -9,15 +9,15 @@
       </p>
       <div class="hero-actions">
         <p-button 
-          label="Registrar Persona" 
-          icon="pi pi-plus" 
+          label="Busca Familiares" 
+          icon="pi pi-search" 
           styleClass="p-button-lg"
-          routerLink="/registro-persona">
+          routerLink="/busqueda">
         </p-button>
         <p-button 
           label="Ver Albergues" 
           icon="pi pi-home" 
-          styleClass="p-button-outlined p-button-lg"
+          styleClass="p-button-lg"
           routerLink="/albergues">
         </p-button>
       </div>
@@ -101,13 +101,13 @@
             <i class="pi pi-users cta-icon"></i>
             <h4>Registra Personas</h4>
             <p>Si eres responsable de un albergue, registra a las personas que llegan.</p>
-            <p-button label="Ir a Registro" routerLink="/registro-persona" styleClass="p-button-sm"></p-button>
+            <p-button label="Ir a Registro" (click)="navigateToRegistro()" styleClass="p-button-sm"></p-button>
           </div>
           <div class="cta-item">
             <i class="pi pi-home cta-icon"></i>
             <h4>Administra Albergues</h4>
             <p>Gestiona la información de albergues y su capacidad.</p>
-            <p-button label="Gestionar" routerLink="/albergues" styleClass="p-button-sm p-button-outlined"></p-button>
+            <p-button label="Gestionar" (onClick)="navigateToGestionar()" styleClass="p-button-sm p-button-outlined"></p-button>
           </div>
           <div class="cta-item">
             <i class="pi pi-search cta-icon"></i>

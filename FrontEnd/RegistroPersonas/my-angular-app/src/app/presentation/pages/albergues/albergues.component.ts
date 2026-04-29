@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormsModule } from '@angular/forms';
 
 // PrimeNG Components
 import { ButtonModule } from 'primeng/button';
@@ -21,6 +21,7 @@ import { ProgressBarModule } from 'primeng/progressbar';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { AlberguesService } from '../../../core/services/albergues.service';
 import { MunicipiosService } from '../../../core/services/municipios.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { Albergue, CreateAlbergueRequest } from '../../../domain/entities/albergue.entity';
 import { BreadcrumbComponent, BreadcrumbItem } from '../../../shared/components/breadcrumb/breadcrumb.component';
 
@@ -31,6 +32,7 @@ import { BreadcrumbComponent, BreadcrumbItem } from '../../../shared/components/
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    FormsModule,
     ButtonModule,
     InputTextModule,
     InputNumberModule,
@@ -72,6 +74,11 @@ export class AlberguesComponent implements OnInit {
   municipioOptions: {label: string, value: string}[] = [];
   asentamientoOptions: {label: string, value: string}[] = [];
   
+  // Filtros
+  alberguesFiltrados: Albergue[] = [];
+  municipioFilterOptions: {label: string, value: string}[] = [];
+  selectedMunicipioFilter: string | null = null;
+  
   serviciosDisponibles = [
     { label: 'Alimentos', value: 'Alimentos' },
     { label: 'Agua potable', value: 'Agua potable' },
@@ -90,7 +97,8 @@ export class AlberguesComponent implements OnInit {
     private alberguesService: AlberguesService,
     private municipiosService: MunicipiosService,
     private messageService: MessageService,
-    private confirmationService: ConfirmationService
+    private confirmationService: ConfirmationService,
+    public authService: AuthService
   ) {
     this.createForm();
   }
@@ -131,16 +139,22 @@ export class AlberguesComponent implements OnInit {
     // Cargar albergues
     this.alberguesService.getAllAlbergues().subscribe(albergues => {
       this.albergues = albergues;
+      this.alberguesFiltrados = [...albergues]; // Inicializar filtrados
     });
 
-    // Cargar estadísticas
+    // Cargar estadísticas del backend
     this.alberguesService.getEstadisticas().subscribe(stats => {
       this.estadisticas = stats;
     });
 
-    // Cargar municipios
+    // Cargar municipios para el formulario
     this.municipiosService.getMunicipiosList().subscribe(municipios => {
       this.municipioOptions = municipios;
+      // También cargar para filtros
+      this.municipioFilterOptions = [
+        { label: 'Todos los municipios', value: '' },
+        ...municipios
+      ];
     });
   }
 
@@ -275,6 +289,49 @@ export class AlberguesComponent implements OnInit {
   hasFieldError(fieldPath: string): boolean {
     const field = this.albergueForm.get(fieldPath);
     return !!(field?.errors && field.touched);
+  }
+
+  // Métodos para filtros
+  onMunicipioFilterChange() {
+    this.applyFilters();
+  }
+
+  applyFilters() {
+    this.alberguesFiltrados = this.albergues.filter(albergue => {
+      if (this.selectedMunicipioFilter && this.selectedMunicipioFilter !== '') {
+        return albergue.municipio === this.selectedMunicipioFilter;
+      }
+      return true;
+    });
+    
+    this.updateEstadisticas();
+  }
+
+  updateEstadisticas() {
+    // Solo actualizar estadísticas basadas en filtros si hay filtros aplicados
+    if (this.selectedMunicipioFilter && this.selectedMunicipioFilter !== '') {
+      const albergues = this.alberguesFiltrados;
+      this.estadisticas = {
+        total: albergues.length,
+        activos: albergues.filter(a => a.estado === 'Activo').length,
+        llenos: albergues.filter(a => a.estado === 'Lleno').length,
+        ocupacion: this.calculateOcupacion(albergues)
+      };
+    } else {
+      // Si no hay filtros, cargar estadísticas del backend
+      this.alberguesService.getEstadisticas().subscribe(stats => {
+        this.estadisticas = stats;
+      });
+    }
+  }
+
+  private calculateOcupacion(albergues: Albergue[]): number {
+    if (albergues.length === 0) return 0;
+    
+    const capacidadTotal = albergues.reduce((sum, a) => sum + a.capacidadMaxima, 0);
+    const ocupacionTotal = albergues.reduce((sum, a) => sum + a.capacidadActual, 0);
+    
+    return capacidadTotal > 0 ? (ocupacionTotal / capacidadTotal) * 100 : 0;
   }
 
   getFieldError(fieldPath: string): string {
